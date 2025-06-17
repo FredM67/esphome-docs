@@ -66,7 +66,7 @@ In `emontx` platform:
             node: 1
             http_id: http_client
 
-.. _emontx-sensors:
+.. _emontx-sensor:
 
 Sensors
 -------
@@ -151,6 +151,7 @@ These predefined configurations can be overridden in your YAML configuration if 
 Example of Sensor Configuration
 *******************************
 Here is an example of how to configure the EmonTx sensors in your ESPHome YAML configuration:
+
 .. code-block:: yaml
 
     sensor:
@@ -187,7 +188,7 @@ Hardware Setup
 
 The EmonTx can be connected to your ESP device via the serial UART interface.
 
-Make sure the EmonTx is configured to output data in the correct format. The default baud rate for communication is 115200.
+Make sure the EmonTx is configured to output data in JSON format. The default baud rate for communication is 115200.
 
 See Also
 --------
