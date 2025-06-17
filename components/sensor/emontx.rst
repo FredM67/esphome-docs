@@ -13,6 +13,7 @@ This component is a global hub that establishes the connection to the EmonTx via
 Using the :ref:`emontx sensors <emontx-sensor>`, you can then create individual sensors that track voltage, current, power, and temperature readings from the EmonTx.
 
 .. figure:: images/emontx5.jpg
+
     :align: center
     :width: 50.0%
     
@@ -53,7 +54,7 @@ In `emontx` platform:
     For example:
     
     .. code-block:: yaml
-    
+
         http_request:
           id: http_client
           useragent: esphome/emontx
