@@ -312,6 +312,7 @@ Electricity
     CT Clamp, components/sensor/ct_clamp, ct_clamp.jpg, Alternating Current (AC)
     Daly BMS, components/sensor/daly_bms, daly_bms.jpg, Voltage & Current & Power
     DSMR, components/sensor/dsmr, dsmr.svg, Electrical counter
+    EmonTx, components/sensor/emontx, emontx.jpg, Voltage & Current & Power & Energy & Temperature
     HLW8012, components/sensor/hlw8012, hlw8012.svg, Voltage & Current & Power
     INA219, components/sensor/ina219, ina219.jpg, Direct Current (DC)
     INA226, components/sensor/ina226, ina226.jpg, Direct Current (DC) & Power
