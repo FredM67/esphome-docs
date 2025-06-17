@@ -10,7 +10,7 @@ Component/Hub
 
 The ``emontx`` component allows you to use an EmonTx device with ESPHome.
 This component is a global hub that establishes the connection to the EmonTx via :ref:`UART <uart>` and translates the received data.
-Using the :ref:`emontx sensors <emontx-sensor>`, you can then create individual sensors that track voltage, current, power, and temperature readings from the EmonTx.
+Using the :ref:`emontx sensors <emontx-sensors>`, you can then create individual sensors that track voltage, current, power, and temperature readings from the EmonTx.
 
 .. figure:: images/emontx5.jpg
     :alt: OpenEnergyMonitor EmonTx5
@@ -49,7 +49,8 @@ In `emontx` platform:
 
 .. note::
 
-    If you configure the ``emoncms`` option, you will also need to define the ``http_request`` component in your configuration and reference its ID in the ``http_id`` parameter. This is required for the component to communicate with the emoncms server.
+    If you configure the ``emoncms`` option, you will also need to define the ``http_request`` component in your configuration and reference its ID in the ``http_id`` parameter.
+    This is required for the component to communicate with the emoncms server.
     
     For example:
     
@@ -67,7 +68,7 @@ In `emontx` platform:
             node: 1
             http_id: http_client
 
-.. _emontx-sensor:
+.. _emontx-sensors:
 
 Sensors
 -------
@@ -148,6 +149,63 @@ Pulse sensors have the following default configuration:
 - Accuracy: 0 decimal places (whole numbers)
 
 These predefined configurations can be overridden in your YAML configuration if needed.
+
+Sensor Indexing
+**************
+
+The EmonTx sensors use a specific indexing scheme that depends on the physical configuration of your EmonTx device:
+
+Voltage Sensors (V1-V3)
+^^^^^^^^^^^^^^^^^^^^^^^
+Voltage sensors are indexed based on your power system configuration:
+
+- **V1**: Voltage reading for single-phase systems or phase 1 in multi-phase systems
+- **V2**: Voltage reading for phase 2 in multi-phase systems
+- **V3**: Voltage reading for phase 3 in three-phase systems
+
+Power Sensors (P1-P12)
+^^^^^^^^^^^^^^^^^^^^^
+Power sensors are indexed based on the CT clamp connections:
+
+- **P1-P6**: Power readings for CT1-CT6 on the standard EmonTx
+- **P7-P12**: Power readings for CT7-CT12 when an expansion board is present
+
+Energy Sensors (E1-E12)
+^^^^^^^^^^^^^^^^^^^^^^
+Energy sensors follow the same indexing scheme as power sensors:
+
+- **E1-E6**: Energy accumulation for CT1-CT6 on the standard EmonTx
+- **E7-E12**: Energy accumulation for CT7-CT12 when an expansion board is present
+
+Current Sensors (I1-I12)
+^^^^^^^^^^^^^^^^^^^^^^^
+Current sensors are indexed according to the CT inputs:
+
+- **I1-I6**: Current readings from CT1-CT6 on the standard EmonTx
+- **I7-I12**: Current readings from CT7-CT12 when an expansion board is present
+
+Power Factor Sensors (PF1-PF12)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Power factor sensors follow the same indexing as the CT inputs:
+
+- **PF1-PF6**: Power factor for CT1-CT6 on the standard EmonTx
+- **PF7-PF12**: Power factor for CT7-CT12 when an expansion board is present
+
+Temperature Sensors (T1-T3)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Temperature sensors are indexed according to the connected temperature probes:
+
+- **T1-T3**: Readings from up to 3 temperature sensors (usually DS18B20)
+
+Pulse Sensor (PULSE, DIGPULSE, ANAPULSE)
+^^^^^^^^^^^^^^^^^^^
+The pulse sensor is a single counter input and doesn't use indexing.
+
+.. note::
+
+    The actual availability of sensors depends on your specific EmonTx configuration and firmware.
+    Not all sensor indexes may be active or report values in your setup.
+    For example, in a single-phase system, only V1 will provide readings, while V2 and V3 won't be available.
 
 Example of Sensor Configuration
 *******************************
