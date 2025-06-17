@@ -3,11 +3,14 @@ OpenEnergyMonitor EmonTx Sensors
 
 .. seo:: :description: Instructions for setting up OpenEnergyMonitor EmonTx energy monitors with ESPHome. :image: emontx.jpg :keywords: EmonTx, OpenEnergyMonitor, energy monitor, power monitoring, CT clamp
 
-The emontx sensor platform allows you to use your OpenEnergyMonitor EmonTx energy monitoring devices with ESPHome.
-The EmonTx is a wireless energy monitoring device that can measure voltage, current, and power consumption. It is commonly used in home energy monitoring systems.
-The EmonTx can be equipped with various sensors, such as CT clamps for current measurement, and can also measure temperature.
+.. _emontx-component:
 
-For further information about the EmonTx and similar devices, see the `OpenEnergyMonitor site <https://openenergymonitor.org/>`_.
+Component/Hub
+-------------
+
+The ``emontx`` component allows you to use an EmonTx device with ESPHome.
+This component is a global hub that establishes the connection to the EmonTx via :ref:`UART <uart>` and translates the received data.
+Using the :ref:`emontx sensors <emontx-sensor>`, you can then create individual sensors that track voltage, current, power, and temperature readings from the EmonTx.
 
 .. figure:: images/emontx5.jpg
     :align: center
@@ -15,9 +18,17 @@ For further information about the EmonTx and similar devices, see the `OpenEnerg
     
     OpenEnergyMonitor EmonTx5
 
+As the communication with the EmonTx is done using UART, you need to have an :ref:`UART bus <uart>` in your configuration with the ``rx_pin`` connected to the data pin of the EmonTx and with the baud rate set to 115200.
+
 .. code-block:: yaml
 
     # Example configuration entry
+    uart:
+      id: emontx_uart # using UART2
+      rx_pin: GPIO16
+      tx_pin: GPIO17
+      baud_rate: 115200
+
     emontx:
       id: myemontx
 
@@ -27,7 +38,7 @@ Configuration variables
 In `emontx` platform:
 
 - **id** (*Optional*, :ref:`config-id`): Manually specify the ID used for code generation or multiple hubs.
-
+- **uart_id** (*Optional*, :ref:`config-id`): Manually specify the ID of the UART Component if you want to use multiple UART buses.
 - **emoncms** (*Optional*): For forwarding data to an `emoncms` server.
 
   - **emoncms_server** (**Required**): The URL of the emoncms server.
@@ -56,8 +67,118 @@ In `emontx` platform:
             http_id: http_client
 
 Sensors
-*******
+-------
 
+The EmonTx component provides several sensors that can be used to monitor various parameters:
+
+- **Power**: Calculates the power consumption based on the voltage and current readings.
+- **Energy**: Accumulates the energy consumption over time.
+- **Voltage**: Measures the voltage of the mains supply.
+- **Current**: Measures the current flowing through the connected CT clamps.
+- **Power Factor**: Calculates the power factor based on the voltage and current readings.
+- **Pulse**: Measures the number of pulses from the connected pulse sensor (interface S0 for example).
+- **Temperature**: Measures the temperature of the EmonTx device itself.
+
+Predefined Sensor Configuration
+*******************************
+Each type of sensor in the EmonTx component has predefined configuration parameters:
+
+Power Sensors (P)
+^^^^^^^^^^^^^^^^^
+Power sensors have the following default configuration:
+
+- Unit of Measurement: W (Watt)
+- Device Class: power
+- State Class: measurement
+- Accuracy: 1 decimal place
+
+Energy Sensors (E)
+^^^^^^^^^^^^^^^^^^
+Energy sensors have the following default configuration:
+
+- Unit of Measurement: Wh (Watt-hours)
+- Device Class: energy
+- State Class: total_increasing
+- Accuracy: 3 decimal places
+
+Voltage Sensors (V)
+^^^^^^^^^^^^^^^^^^^
+Voltage sensors have the following default configuration:
+
+- Unit of Measurement: V (Volt)
+- Device Class: voltage
+- State Class: measurement
+- Accuracy: 2 decimal places
+
+Current Sensors (I)
+^^^^^^^^^^^^^^^^^^^
+Current sensors have the following default configuration:
+
+- Unit of Measurement: A (Ampere)
+- Device Class: current
+- State Class: measurement
+- Accuracy: 2 decimal places
+
+Power Factor Sensors (PF)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+Power factor sensors have the following default configuration:
+
+- Unit of Measurement: (dimensionless)
+- Device Class: power_factor
+- State Class: measurement
+- Accuracy: 2 decimal places
+
+Temperature Sensors (T)
+^^^^^^^^^^^^^^^^^^^^^^^
+Temperature sensors have the following default configuration:
+
+- Unit of Measurement: °C (Celsius)
+- Device Class: temperature
+- State Class: measurement
+- Accuracy: 1 decimal place
+
+Pulse Sensors (PULSE)
+^^^^^^^^^^^^^^^^^^^^^
+Pulse sensors have the following default configuration:
+
+- Unit of Measurement: pulses
+- Accuracy: 0 decimal places (whole numbers)
+
+These predefined configurations can be overridden in your YAML configuration if needed.
+
+Example of Sensor Configuration
+*******************************
+Here is an example of how to configure the EmonTx sensors in your ESPHome YAML configuration:
+.. code-block:: yaml
+
+    sensor:
+      - platform: emontx
+        tag_name: "V1"
+        name: "Voltage L1"
+      - platform: emontx
+        tag_name: "V2"
+        name: "Voltage L2"
+      - platform: emontx
+        tag_name: "V3"
+        name: "Voltage L3"
+      - platform: emontx
+        tag_name: "P1"
+        name: "Power CT1"
+      - platform: emontx
+        tag_name: "E2"
+        name: "Energy CT2"
+      - platform: emontx
+        tag_name: "I3"
+        name: "Current CT3"
+      - platform: emontx
+        tag_name: "pf1"
+        name: "Power factor CT1"
+      - platform: emontx
+        tag_name: "T1"
+        name: "Temp 1"
+      - platform: emontx
+        tag_name: "pulse"
+        name: "Pulse"
 
 Hardware Setup
 --------------
