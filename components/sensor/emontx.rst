@@ -16,7 +16,7 @@ Using the :ref:`emontx sensors <emontx-sensor>`, you can then create individual 
     :alt: OpenEnergyMonitor EmonTx5
     :align: center
     :width: 50.0%
-    
+
     OpenEnergyMonitor EmonTx5.
 
 As the communication with the EmonTx is done using UART, you need to have an :ref:`UART bus <uart>` in your configuration with the ``rx_pin`` connected to the data pin of the EmonTx and with the baud rate set to 115200.
