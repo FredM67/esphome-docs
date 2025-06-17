@@ -151,7 +151,7 @@ Pulse sensors have the following default configuration:
 These predefined configurations can be overridden in your YAML configuration if needed.
 
 Sensor Indexing
-**************
+***************
 
 The EmonTx sensors use a specific indexing scheme that depends on the physical configuration of your EmonTx device:
 
@@ -164,41 +164,41 @@ Voltage sensors are indexed based on your power system configuration:
 - **V3**: Voltage reading for phase 3 in three-phase systems
 
 Power Sensors (P1-P12)
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 Power sensors are indexed based on the CT clamp connections:
 
 - **P1-P6**: Power readings for CT1-CT6 on the standard EmonTx
 - **P7-P12**: Power readings for CT7-CT12 when an expansion board is present
 
 Energy Sensors (E1-E12)
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 Energy sensors follow the same indexing scheme as power sensors:
 
 - **E1-E6**: Energy accumulation for CT1-CT6 on the standard EmonTx
 - **E7-E12**: Energy accumulation for CT7-CT12 when an expansion board is present
 
 Current Sensors (I1-I12)
-^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 Current sensors are indexed according to the CT inputs:
 
 - **I1-I6**: Current readings from CT1-CT6 on the standard EmonTx
 - **I7-I12**: Current readings from CT7-CT12 when an expansion board is present
 
 Power Factor Sensors (PF1-PF12)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Power factor sensors follow the same indexing as the CT inputs:
 
 - **PF1-PF6**: Power factor for CT1-CT6 on the standard EmonTx
 - **PF7-PF12**: Power factor for CT7-CT12 when an expansion board is present
 
 Temperature Sensors (T1-T3)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Temperature sensors are indexed according to the connected temperature probes:
 
 - **T1-T3**: Readings from up to 3 temperature sensors (usually DS18B20)
 
 Pulse Sensor (PULSE, DIGPULSE, ANAPULSE)
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The pulse sensor is a single counter input and doesn't use indexing.
 
 .. note::
