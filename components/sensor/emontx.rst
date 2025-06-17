@@ -66,6 +66,8 @@ In `emontx` platform:
             node: 1
             http_id: http_client
 
+.. _emontx-sensors:
+
 Sensors
 -------
 
