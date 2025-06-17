@@ -79,7 +79,7 @@ The EmonTx component provides several sensors that can be used to monitor variou
 - **Current**: Measures the current flowing through the connected CT clamps.
 - **Power Factor**: Calculates the power factor based on the voltage and current readings.
 - **Pulse**: Measures the number of pulses from the connected pulse sensor (interface S0 for example).
-- **Temperature**: Measures the temperature of the EmonTx device itself.
+- **Temperature**: Reports temperatures of connected Dallas DS18B20 sensors.
 
 Predefined Sensor Configuration
 *******************************
