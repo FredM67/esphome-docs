@@ -58,7 +58,7 @@ Emoncms Integration
     remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
     reboot every 15 minutes because no client connected to the native API.
 
-If you configure the ``emoncms`` option, you will also need to define the :ref:`http_request <http_request>` component in your configuration and reference its ID in the ``http_id`` parameter.
+If you configure the ``emoncms`` option, you will also need to define the :doc:`/components/http_request` component in your configuration and reference its ID in the ``http_id`` parameter.
 This is required for the component to communicate with the emoncms server.
 
 Example:
