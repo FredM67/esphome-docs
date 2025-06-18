@@ -110,14 +110,14 @@ Example:
     
     emontx:
       mqtt:
-        topic_prefix: "emont/emontx"
+        topic_prefix: "emon/emontx"
         mqtt_id: mqtt_client
 
 With this configuration, data will be published to topics such as:
 
-- ``emont/emontx/V1`` for voltage on phase 1
-- ``emont/emontx/P1`` for power on CT1
-- ``emont/emontx/E1`` for energy on CT1
+- ``emon/emontx/V1`` for voltage on phase 1
+- ``emon/emontx/P1`` for power on CT1
+- ``emon/emontx/E1`` for energy on CT1
 
 For integration with emoncms via MQTT, use the topic prefix that includes any node identification required by your emoncms instance.
 
