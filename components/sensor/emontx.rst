@@ -12,7 +12,7 @@ The ``emontx`` component allows you to use an EmonTx device with ESPHome.
 This component is a global hub that establishes the connection to the EmonTx via :ref:`UART <uart>` and translates the received data.
 Using the :ref:`emontx sensors <emontx-sensors>`, you can then create sensors for Home Assistant that track voltage, current, power, and temperature readings from the EmonTx.
 
-This component can also be used to send data to an `emoncms <https://emoncms.org/>`_ system via HTTP (with MQTT support coming in the future). Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
+This component can also be used to send data to an `emoncms <https://emoncms.org/>`_ system via HTTP or MQTT. Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
 
 .. figure:: images/emontx5.jpg
     :alt: OpenEnergyMonitor EmonTx5
