@@ -10,7 +10,9 @@ Component/Hub
 
 The ``emontx`` component allows you to use an EmonTx device with ESPHome.
 This component is a global hub that establishes the connection to the EmonTx via :ref:`UART <uart>` and translates the received data.
-Using the :ref:`emontx sensors <emontx-sensors>`, you can then create individual sensors that track voltage, current, power, and temperature readings from the EmonTx.
+Using the :ref:`emontx sensors <emontx-sensors>`, you can then create sensors for Home Assistant that track voltage, current, power, and temperature readings from the EmonTx.
+
+This component can also be used to send data to an `emoncms <https://emoncms.org/>`_ system via HTTP (with MQTT support coming in the future). Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
 
 .. figure:: images/emontx5.jpg
     :alt: OpenEnergyMonitor EmonTx5
@@ -47,26 +49,33 @@ In `emontx` platform:
   - **node** (**Required**): The node ID to use for the emoncms server.
   - **http_id** (**Required**, :ref:`config-id`): The ID of the HTTP component to use for communication with the emoncms server.
 
-.. note::
+Emoncms Integration
+-------------------
 
-    If you configure the ``emoncms`` option, you will also need to define the ``http_request`` component in your configuration and reference its ID in the ``http_id`` parameter.
-    This is required for the component to communicate with the emoncms server.
-    
-    For example:
-    
-    .. code-block:: yaml
+.. warning::
 
-        http_request:
-          id: http_client
-          useragent: esphome/emontx
-          timeout: 10s
-        
-        emontx:
-          emoncms:
-            emoncms_server: "https://emoncms.org"
-            api_key: YOUR_API_KEY
-            node: 1
-            http_id: http_client
+    If you enable ``emoncms`` and you do *not* use the :doc:`/components/api`, ie the module is exclusively used for forwarding data to Emoncms and it's *not* connected to any Home Assistant instance, you must
+    remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
+    reboot every 15 minutes because no client connected to the native API.
+
+If you configure the ``emoncms`` option, you will also need to define the :ref:`http_request <http_request>` component in your configuration and reference its ID in the ``http_id`` parameter.
+This is required for the component to communicate with the emoncms server.
+
+Example:
+
+.. code-block:: yaml
+
+    http_request:
+      id: http_client
+      useragent: esphome/emontx
+      timeout: 10s
+    
+    emontx:
+      emoncms:
+        emoncms_server: "https://emoncms.org"
+        api_key: YOUR_API_KEY
+        node: 1
+        http_id: http_client
 
 .. _emontx-sensors:
 
