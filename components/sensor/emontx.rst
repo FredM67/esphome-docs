@@ -49,6 +49,11 @@ In `emontx` platform:
   - **node** (**Required**): The node ID to use for the emoncms server.
   - **http_id** (**Required**, :ref:`config-id`): The ID of the HTTP component to use for communication with the emoncms server.
 
+- **mqtt_forward** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
+
+  - **topic_prefix** (**Required**): The MQTT topic prefix to use for publishing data.
+  - **mqtt_id** (**Required**, :ref:`config-id`): The ID of the MQTT client component to use.
+
 Emoncms Integration
 -------------------
 
@@ -76,6 +81,44 @@ Example:
         api_key: YOUR_API_KEY
         node: 1
         http_id: http_client
+
+MQTT Integration
+----------------
+
+.. warning::
+
+    If you enable ``mqtt`` forwarding and you do *not* use the :doc:`/components/api`, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must
+    remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
+    reboot every 15 minutes because no client connected to the native API.
+
+If you configure the ``mqtt`` option, you will need to define the :doc:`/components/mqtt` component in your configuration and reference its ID in the ``mqtt_id`` parameter.
+This is required for the component to publish data to the MQTT broker.
+
+The component will publish all sensor data to topics following this structure:
+``<topic_prefix>/<sensor_name>``
+
+Example:
+
+.. code-block:: yaml
+
+    mqtt:
+      broker: 192.168.1.10
+      port: 1883           # Optional
+      username: mqtt_user  # Optional
+      password: mqtt_pass  # Optional
+      id: mqtt_client
+    
+    emontx:
+      mqtt:
+        topic_prefix: "emont/emontx"
+        mqtt_id: mqtt_client
+
+With this configuration, data will be published to topics such as:
+- ``emont/emontx/V1`` for voltage on phase 1
+- ``emont/emontx/P1`` for power on CT1
+- ``emont/emontx/E1`` for energy on CT1
+
+For integration with emoncms via MQTT, use the topic prefix that includes any node identification required by your emoncms instance.
 
 .. _emontx-sensors:
 
