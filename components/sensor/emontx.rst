@@ -114,6 +114,7 @@ Example:
         mqtt_id: mqtt_client
 
 With this configuration, data will be published to topics such as:
+
 - ``emont/emontx/V1`` for voltage on phase 1
 - ``emont/emontx/P1`` for power on CT1
 - ``emont/emontx/E1`` for energy on CT1
