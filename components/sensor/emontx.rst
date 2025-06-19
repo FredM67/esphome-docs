@@ -51,7 +51,6 @@ In `emontx` platform:
 - **mqtt_forward** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
 
   - **topic_prefix** (**Required**, string): The MQTT topic prefix to use for publishing data.
-  - **mqtt_id** (**Required**, :ref:`config-id`): The ID of the MQTT client component to use.
 
 Emoncms Integration
 -------------------
@@ -88,7 +87,7 @@ MQTT Integration
     remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
     reboot every 15 minutes because no client connected to the native API.
 
-If you configure the ``mqtt`` option, you will need to define the :doc:`/components/mqtt` component in your configuration and reference its ID in the ``mqtt_id`` parameter.
+If you configure the ``mqtt`` option, you will need to define the :doc:`/components/mqtt` component in your configuration.
 This is required for the component to publish data to the MQTT broker.
 
 The component will publish all sensor data to topics following this structure:
@@ -103,12 +102,11 @@ Example:
       port: 1883           # Optional
       username: mqtt_user  # Optional
       password: mqtt_pass  # Optional
-      id: mqtt_client
+      id: mqtt_client      # Optional
     
     emontx:
       mqtt:
         topic_prefix: "emon/emontx"
-        mqtt_id: mqtt_client
 
 With this configuration, data will be published to topics such as:
 
