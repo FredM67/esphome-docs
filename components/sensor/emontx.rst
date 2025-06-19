@@ -8,18 +8,20 @@ OpenEnergyMonitor EmonTx Sensors
 Component/Hub
 -------------
 
-The ``emontx`` component allows you to use an EmonTx device with ESPHome.
+The ``emontx`` component allows you to use ESPHome to create a connection to an OpenEnergyMonitor emonTX via a supported device (ESP32 recommended).
 This component is a global hub that establishes the connection to the EmonTx via :ref:`UART <uart>` and translates the received data.
-Using the :ref:`emontx sensors <emontx-sensors>`, you can then create sensors for Home Assistant that track voltage, current, power, and temperature readings from the EmonTx.
+Using the :ref:`emontx sensors <emontx-sensors>`, you can then create sensors for Home Assistant that track voltage, current, power as measured by CTs (up to 12), pulse data, and temperature depending on the configuration of the emonTX.
 
-This component can also be used to send data to an `emoncms <https://emoncms.org/>`_ system via HTTP or MQTT. Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
+The component can send data to an MQTT Broker either as JSON or as individual topics to be consumed by any system.
+
+This component can also be used to send data to a remote emoncms instance such as `emoncms <https://emoncms.org/>`_ via HTTP or a locally hosted system via HTTP or MQTT. Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
 
 .. figure:: images/emontx5.jpg
     :alt: OpenEnergyMonitor EmonTx5
     :align: center
     :width: 50.0%
 
-    OpenEnergyMonitor EmonTx5.
+    OpenEnergyMonitor EmonTx.
 
 As the communication with the EmonTx is done using UART, you need to have an :ref:`UART bus <uart>` in your configuration with the ``rx_pin`` connected to the data pin of the EmonTx and with the baud rate set to 115200.
 
@@ -45,7 +47,7 @@ In `emontx` platform:
 - **emoncms** (*Optional*): For forwarding data to an `emoncms` server.
 
   - **emoncms_server** (**Required**): The URL of the emoncms server.
-  - **api_key** (**Required**, string): The API write key for the emoncms server.
+  - **api_key** (**Required**, string): The API Read/Write key for the emoncms server.
   - **node** (**Required**, string): The node ID to use for the emoncms server.
 
 - **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
