@@ -79,7 +79,7 @@ Example:
         node: 1
 
 .. note::
-  
+
     The ``node`` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
 
 MQTT Integration
