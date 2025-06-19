@@ -45,12 +45,12 @@ In `emontx` platform:
 - **emoncms** (*Optional*): For forwarding data to an `emoncms` server.
 
   - **emoncms_server** (**Required**): The URL of the emoncms server.
-  - **api_key** (**Required**): The API write key for the emoncms server.
-  - **node** (**Required**): The node ID to use for the emoncms server.
+  - **api_key** (**Required**, string): The API write key for the emoncms server.
+  - **node** (**Required**, string): The node ID to use for the emoncms server.
 
 - **mqtt_forward** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
 
-  - **topic_prefix** (**Required**): The MQTT topic prefix to use for publishing data.
+  - **topic_prefix** (**Required**, string): The MQTT topic prefix to use for publishing data.
   - **mqtt_id** (**Required**, :ref:`config-id`): The ID of the MQTT client component to use.
 
 Emoncms Integration
