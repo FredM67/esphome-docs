@@ -47,7 +47,6 @@ In `emontx` platform:
   - **emoncms_server** (**Required**): The URL of the emoncms server.
   - **api_key** (**Required**): The API write key for the emoncms server.
   - **node** (**Required**): The node ID to use for the emoncms server.
-  - **http_id** (**Required**, :ref:`config-id`): The ID of the HTTP component to use for communication with the emoncms server.
 
 - **mqtt_forward** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
 
@@ -63,7 +62,7 @@ Emoncms Integration
     remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
     reboot every 15 minutes because no client connected to the native API.
 
-If you configure the ``emoncms`` option, you will also need to define the :doc:`/components/http_request` component in your configuration and reference its ID in the ``http_id`` parameter.
+If you configure the ``emoncms`` option, you will also need to define the :doc:`/components/http_request` component in your configuration.
 This is required for the component to communicate with the emoncms server.
 
 Example:
@@ -71,7 +70,6 @@ Example:
 .. code-block:: yaml
 
     http_request:
-      id: http_client
       useragent: esphome/emontx
       timeout: 10s
     
@@ -80,7 +78,6 @@ Example:
         emoncms_server: "https://emoncms.org"
         api_key: YOUR_API_KEY
         node: 1
-        http_id: http_client
 
 MQTT Integration
 ----------------
