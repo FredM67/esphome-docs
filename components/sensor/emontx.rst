@@ -48,7 +48,7 @@ In `emontx` platform:
   - **api_key** (**Required**, string): The API write key for the emoncms server.
   - **node** (**Required**, string): The node ID to use for the emoncms server.
 
-- **mqtt_forward** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
+- **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
 
   - **topic_prefix** (**Required**, string): The MQTT topic prefix to use for publishing data.
 
@@ -77,6 +77,10 @@ Example:
         emoncms_server: "https://emoncms.org"
         api_key: YOUR_API_KEY
         node: 1
+
+.. note::
+  
+    The ``node`` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
 
 MQTT Integration
 ----------------
