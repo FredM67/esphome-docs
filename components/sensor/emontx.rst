@@ -46,13 +46,16 @@ In `emontx` platform:
 - **uart_id** (*Optional*, :ref:`config-id`): Manually specify the ID of the UART Component if you want to use multiple UART buses.
 - **emoncms** (*Optional*): For forwarding data to an `emoncms` server.
 
-  - **emoncms_server** (**Required**): The URL of the emoncms server.
-  - **api_key** (**Required**, string): The API Read/Write key for the emoncms server.
-  - **node** (**Required**, string): The node ID to use for the emoncms server.
+  - **http** (*Optional*): For forwarding data to an HTTP server.
 
-- **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
+    - **emoncms_server** (**Required**): The URL of the emoncms server.
+    - **api_key** (**Required**, string): The API Read/Write key for the emoncms server.
+    - **node** (**Required**, string): The node ID to use for the emoncms server.
 
-  - **topic_prefix** (**Required**, string): The MQTT topic prefix to use for publishing data.
+  - **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
+
+    - **base_prefix** (*Optional*, string): The MQTT base prefix to use for publishing data. Defaults to "emon".
+    - **node** (*Optional*, string): The MQTT node to use for publishing data. Defaults to ``${device_name}``.
 
 Emoncms Integration
 -------------------
@@ -76,9 +79,10 @@ Example:
     
     emontx:
       emoncms:
-        emoncms_server: "https://emoncms.org"
-        api_key: YOUR_API_KEY
-        node: 1
+        http:
+          emoncms_server: "https://emoncms.org"
+          api_key: YOUR_API_KEY
+          node: 1
 
 .. note::
 
@@ -97,7 +101,7 @@ If you configure the ``mqtt`` option, you will need to define the :doc:`/compone
 This is required for the component to publish data to the MQTT broker.
 
 The component will publish all sensor data to topics following this structure:
-``<topic_prefix>/<sensor_name>``
+``<base_prefix>/<node>/<sensor_name>``
 
 Example:
 
@@ -111,8 +115,10 @@ Example:
       id: mqtt_client      # Optional
     
     emontx:
-      mqtt:
-        topic_prefix: "emon/emontx"
+      emoncms:
+        mqtt:
+          base_prefix: "emon"
+          node: "emontx"
 
 With this configuration, data will be published to topics such as:
 
@@ -120,7 +126,7 @@ With this configuration, data will be published to topics such as:
 - ``emon/emontx/P1`` for power on CT1
 - ``emon/emontx/E1`` for energy on CT1
 
-For integration with emoncms via MQTT, use the topic prefix that includes any node identification required by your emoncms instance.
+For integration with emoncms via MQTT, use the base prefix that includes any node identification required by your emoncms instance.
 
 .. _emontx-sensors:
 
