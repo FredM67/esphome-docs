@@ -54,7 +54,7 @@ In `emontx` platform:
 
   - **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
 
-    - **base_prefix** (*Optional*, string): The MQTT base prefix to use for publishing data. Defaults to "emon".
+    - **base_prefix** (*Optional*, string): The MQTT base prefix to use for publishing data. Defaults to ``emon``.
     - **node** (*Optional*, string): The MQTT node to use for publishing data. Defaults to ``${device_name}``.
 
 Emoncms Integration
