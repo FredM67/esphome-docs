@@ -154,7 +154,7 @@ Power sensors have the following default configuration:
 - Unit of Measurement: W (Watt)
 - Device Class: power
 - State Class: measurement
-- Accuracy: 1 decimal place
+- Accuracy: 0 decimal place
 
 Energy Sensors (E)
 ^^^^^^^^^^^^^^^^^^
@@ -163,7 +163,7 @@ Energy sensors have the following default configuration:
 - Unit of Measurement: Wh (Watt-hours)
 - Device Class: energy
 - State Class: total_increasing
-- Accuracy: 3 decimal places
+- Accuracy: 0 decimal places
 
 Voltage Sensors (V)
 ^^^^^^^^^^^^^^^^^^^
@@ -199,7 +199,7 @@ Temperature sensors have the following default configuration:
 - Unit of Measurement: °C (Celsius)
 - Device Class: temperature
 - State Class: measurement
-- Accuracy: 1 decimal place
+- Accuracy: 2 decimal place
 
 Pulse Sensors (PULSE)
 ^^^^^^^^^^^^^^^^^^^^^
