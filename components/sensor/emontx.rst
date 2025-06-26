@@ -48,7 +48,7 @@ In `emontx` platform:
 
   - **http** (*Optional*): For forwarding data to an HTTP server.
 
-    - **emoncms_server** (**Required**): The URL of the emoncms server.
+    - **server** (**Required**): The URL of the emoncms server.
     - **api_key** (**Required**, string): The API Read/Write key for the emoncms server.
     - **node** (**Required**, string): The node ID to use for the emoncms server.
 
