@@ -122,6 +122,7 @@ Example:
     emontx:
       emoncms:
         mqtt:
+          publish_mode: individual
           base_prefix: "emon"
           node: "emontx"
 
