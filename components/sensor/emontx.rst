@@ -54,6 +54,11 @@ In `emontx` platform:
 
   - **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
 
+    - **publish_mode** (*Optional*, enum): The MQTT publish mode. Defaults to ``json``.
+
+      - ``json`` - Publish the raw json as receive from EmonTx
+      - ``individual`` - Publish each value individually
+
     - **base_prefix** (*Optional*, string): The MQTT base prefix to use for publishing data. Defaults to ``emon``.
     - **node** (*Optional*, string): The MQTT node to use for publishing data. Defaults to ``${device_name}``.
 
