@@ -85,7 +85,7 @@ Example:
     emontx:
       emoncms:
         http:
-          emoncms_server: "https://emoncms.org"
+          server: "https://emoncms.org"
           api_key: YOUR_API_KEY
           node: 1
 
