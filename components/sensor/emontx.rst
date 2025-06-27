@@ -49,7 +49,7 @@ In `emontx` platform:
   - **http** (*Optional*): For forwarding data to an HTTP server.
 
     - **server** (**Required**): The URL of the emoncms server.
-    - **api_key** (**Required**, string): The API Read/Write key for the emoncms server.
+    - **apikey** (**Required**, string): The API Read/Write key for the emoncms server.
     - **node** (**Required**, string): The node ID to use for the emoncms server.
 
   - **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
@@ -86,7 +86,7 @@ Example:
       emoncms:
         http:
           server: "https://emoncms.org"
-          api_key: YOUR_API_KEY
+          apikey: YOUR_API_KEY
           node: 1
 
 .. note::
