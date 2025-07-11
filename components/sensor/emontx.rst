@@ -163,7 +163,7 @@ This is required for the component to publish data to the MQTT broker.
 The component will publish all sensor data to topics following this structure:
 ``${device_name}/sensor/<sensor_name>``
 
-Only sensor(s) defined in the configuration will be published (see :ref:`sensor-sensors`).
+Only sensor(s) defined in the configuration will be published (see :ref:`_emontx-sensors`).
 
 Example:
 
