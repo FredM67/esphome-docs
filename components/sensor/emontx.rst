@@ -65,6 +65,8 @@ In `emontx` platform:
 Emoncms Integration
 -------------------
 
+This integration is typically intended to forward data to an emoncms server, such as `emoncms.org <https://emoncms.org/>`_ or a locally hosted instance.
+
 .. warning::
 
     If you enable ``emoncms`` and you do *not* use the :doc:`/components/api`, ie the module is exclusively used for forwarding data to Emoncms and it's *not* connected to any Home Assistant instance, you must
@@ -80,6 +82,8 @@ The http method
 ***************
 The component will forward data to the emoncms server using HTTP POST requests.
 The data will be forwarded in JSON format, which is the expected format for emoncms.
+
+This method is suitable for sending data to a remote emoncms server or a locally hosted instance.
 
 Example:
 
@@ -102,6 +106,9 @@ Example:
 
 The MQTT method
 ***************
+This method is suitable for sending data to a locally hosted emoncms instance or any other MQTT broker that supports the emoncms MQTT protocol.
+As of now `emoncms.org` does not support MQTT, so this method is primarily for local installations or other compatible systems.
+
 You'll have two possibilities to forward data to emoncms via MQTT:
 
 1. **Publish the raw JSON**: This method publishes the raw JSON data received from the EmonTx to the MQTT broker. This is the default way to publish.
@@ -142,6 +149,8 @@ For integration with emoncms via MQTT, use the base prefix that includes any nod
 MQTT Integration
 ----------------
 
+This integration is typically intended to forward data to a non-Home Assistant system, such as Jeedom, Domoticz, or a custom MQTT consumer.
+
 .. warning::
 
     If you enable ``mqtt`` forwarding and you do *not* use the :doc:`/components/api`, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must
@@ -152,7 +161,9 @@ If you configure the ``mqtt`` option, you will need to define the :doc:`/compone
 This is required for the component to publish data to the MQTT broker.
 
 The component will publish all sensor data to topics following this structure:
-``<base_prefix>/<node>/<sensor_name>``
+``${device_name}/sensor/<sensor_name>``
+
+Only sensor(s) defined in the configuration will be published (see :ref:`sensor-sensors`).
 
 Example:
 
@@ -166,17 +177,12 @@ Example:
       id: mqtt_client      # Optional
     
     emontx:
-      emoncms:
-        mqtt:
-          publish_mode: individual
-          base_prefix: "emon"
-          node: "emontx"
 
 With this configuration, data will be published to topics such as:
 
-- ``emon/emontx/V1`` for voltage on phase 1
-- ``emon/emontx/P1`` for power on CT1
-- ``emon/emontx/E1`` for energy on CT1
+- ``${device_name}/sensor/V1`` for voltage on phase 1
+- ``${device_name}/sensor/P1`` for power on CT1
+- ``${device_name}/sensor/E1`` for energy on CT1
 
 For integration with emoncms via MQTT, use the base prefix that includes any node identification required by your emoncms instance.
 
