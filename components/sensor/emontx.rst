@@ -333,7 +333,7 @@ The pulse sensor is a single counter input and doesn't use indexing.
     For example:
 
     .. code-block:: text
-    
+
         [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0,"P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
 
 
