@@ -71,8 +71,15 @@ Emoncms Integration
     remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
     reboot every 15 minutes because no client connected to the native API.
 
-If you configure the ``emoncms`` option, you will also need to define the :doc:`/components/http_request` component in your configuration.
+There's two ways to send data to emoncms: via HTTP or MQTT.
+
+If you configure the ``emoncms`` option, you must either define the :doc:`/components/http_request` component or the :doc:`/components/mqtt` component in your configuration.
 This is required for the component to communicate with the emoncms server.
+
+The http method
+***************
+The component will forward data to the emoncms server using HTTP POST requests.
+The data will be forwarded in JSON format, which is the expected format for emoncms.
 
 Example:
 
@@ -92,6 +99,45 @@ Example:
 .. note::
 
     The ``node`` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
+
+The MQTT method
+***************
+You'll have two possibilities to forward data to emoncms via MQTT:
+
+1. **Publish the raw JSON**: This method publishes the raw JSON data received from the EmonTx to the MQTT broker. This is the default way to publish.
+
+2. **Publish individual values**: This method publishes each sensor value individually to separate MQTT topics.
+
+The component will publish all sensor data to topics following this structure:
+
+- ``<base_prefix>/<node>/{json_data}`` for raw JSON data
+- ``<base_prefix>/<node>/<sensor_name>`` for individual sensor values
+
+Example:
+
+.. code-block:: yaml
+
+    mqtt:
+      broker: 192.168.1.10
+      port: 1883           # Optional
+      username: mqtt_user  # Optional
+      password: mqtt_pass  # Optional
+      id: mqtt_client      # Optional
+    
+    emontx:
+      emoncms:
+        mqtt:
+          publish_mode: individual
+          base_prefix: "emon"
+          node: "emontx"
+
+With this configuration, data will be published to topics such as:
+
+- ``emon/emontx/V1`` for voltage on phase 1
+- ``emon/emontx/P1`` for power on CT1
+- ``emon/emontx/E1`` for energy on CT1
+
+For integration with emoncms via MQTT, use the base prefix that includes any node identification required by your emoncms instance.
 
 MQTT Integration
 ----------------
@@ -225,7 +271,8 @@ Voltage Sensors (V1-V3)
 ^^^^^^^^^^^^^^^^^^^^^^^
 Voltage sensors are indexed based on your power system configuration:
 
-- **V1**: Voltage reading for single-phase systems or phase 1 in multi-phase systems
+- **Vrms**: Voltage reading for single-phase systems
+- **V1**: Voltage reading for phase 1 in multi-phase systems
 - **V2**: Voltage reading for phase 2 in multi-phase systems
 - **V3**: Voltage reading for phase 3 in three-phase systems
 
@@ -272,6 +319,13 @@ The pulse sensor is a single counter input and doesn't use indexing.
     The actual availability of sensors depends on your specific EmonTx configuration and firmware.
     Not all sensor indexes may be active or report values in your setup.
     For example, in a single-phase system, only V1 will provide readings, while V2 and V3 won't be available.
+
+    To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
+    You can also use the ESPHome logs to see which sensors are reporting data.
+    For example:
+    ```logs
+    [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0,"P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
+    ```
 
 Example of Sensor Configuration
 *******************************
