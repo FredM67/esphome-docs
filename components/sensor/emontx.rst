@@ -107,6 +107,7 @@ Example:
 The MQTT method
 ***************
 This method is suitable for sending data to a locally hosted emoncms instance or any other MQTT broker that supports the emoncms MQTT protocol.
+
 As of now `emoncms.org` does not support MQTT, so this method is primarily for local installations or other compatible systems.
 
 You'll have two possibilities to forward data to emoncms via MQTT:
@@ -325,7 +326,8 @@ The pulse sensor is a single counter input and doesn't use indexing.
 
     The actual availability of sensors depends on your specific EmonTx configuration and firmware.
     Not all sensor indexes may be active or report values in your setup.
-    For example, in a single-phase system, only V1 will provide readings, while V2 and V3 won't be available.
+    
+    For example, in a single-phase system, only Vrms/V1 will provide readings, while V2 and V3 won't be available.
 
     To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
     You can also use the ESPHome logs to see which sensors are reporting data.
@@ -376,6 +378,8 @@ Hardware Setup
 --------------
 
 The EmonTx can be connected to your ESP device via the serial UART interface.
+
+Depending on your emontx version, an expansion board may be available in the shop that will simplify the wiring. You can also use the standard EmonTx without an expansion board, but you will need to wire the UART/Vcc/Gnd pins manually.
 
 Make sure the EmonTx is configured to output data in JSON format. The default baud rate for communication is 115200.
 
