@@ -184,7 +184,8 @@ With this configuration, data will be published to topics such as:
 - ``${device_name}/sensor/P1`` for power on CT1
 - ``${device_name}/sensor/E1`` for energy on CT1
 
-For integration with emoncms via MQTT, use the base prefix that includes any node identification required by your emoncms instance.
+You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
+See the :doc:`/components/mqtt` documentation for more details on how to configure MQTT topics.
 
 .. _emontx-sensors:
 
@@ -328,10 +329,13 @@ The pulse sensor is a single counter input and doesn't use indexing.
 
     To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
     You can also use the ESPHome logs to see which sensors are reporting data.
+    
     For example:
-    ```logs
-    [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0,"P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
-    ```
+
+    .. code-block:: text
+    
+        [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0,"P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
+
 
 Example of Sensor Configuration
 *******************************
