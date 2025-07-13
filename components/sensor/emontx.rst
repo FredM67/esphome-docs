@@ -56,7 +56,7 @@ In `emontx` platform:
 
     - **publish_mode** (*Optional*, enum): The MQTT publish mode. Defaults to ``json``.
 
-      - ``json`` - Publish the raw json as receive from EmonTx
+      - ``json`` - Publish the raw JSON as receive from EmonTx
       - ``individual`` - Publish each value individually
 
     - **base_prefix** (*Optional*, string): The MQTT base prefix to use for publishing data. Defaults to ``emon``.
@@ -112,7 +112,7 @@ As of now `emoncms.org` does not support MQTT, so this method is primarily for l
 
 You'll have two possibilities to forward data to emoncms via MQTT:
 
-1. **Publish the raw JSON**: This method publishes the raw JSON data received from the EmonTx to the MQTT broker. This is the default way to publish.
+1. **Publish the raw JSON**: This method publishes the raw JSON data received from the EmonTx to the MQTT broker. This is the default method as it is more efficient and ensures all readings are in the same tim
 
 2. **Publish individual values**: This method publishes each sensor value individually to separate MQTT topics.
 
