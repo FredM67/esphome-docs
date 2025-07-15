@@ -164,7 +164,9 @@ This is required for the component to publish data to the MQTT broker.
 The component will publish all sensor data to topics following this structure:
 ``${device_name}/sensor/<sensor_name>``
 
-Only sensor(s) defined in the configuration will be published (see :ref:`emontx-sensors`).
+.. note::
+  
+    Only sensor(s) defined in the configuration will be published (see :ref:`emontx-sensors`).
 
 Example:
 
@@ -179,11 +181,18 @@ Example:
     
     emontx:
 
+    sensor:
+      - platform: emontx
+        tag_name: "Vrms"
+        name: "Voltage"
+      - platform: emontx
+        tag_name: "E2"
+        name: "Energy CT2"
+
 With this configuration, data will be published to topics such as:
 
-- ``${device_name}/sensor/V1`` for voltage on phase 1
-- ``${device_name}/sensor/P1`` for power on CT1
-- ``${device_name}/sensor/E1`` for energy on CT1
+- ``${device_name}/sensor/Vrms`` for voltage
+- ``${device_name}/sensor/E2`` for energy on CT2
 
 You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
 See the :doc:`/components/mqtt` documentation for more details on how to configure MQTT topics.
