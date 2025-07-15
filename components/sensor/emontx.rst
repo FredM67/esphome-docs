@@ -165,7 +165,7 @@ The component will publish all sensor data to topics following this structure:
 ``${device_name}/sensor/<sensor_name>``
 
 .. note::
-  
+
     Only sensor(s) defined in the configuration will be published (see :ref:`emontx-sensors`).
 
 Example:
