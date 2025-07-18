@@ -37,6 +37,7 @@ Supported Microcontrollers
     RTL87xx, components/libretiny, rtl87xx.svg
     LN882x, components/libretiny, ln882x.svg
     Host, components/host, host.svg, dark-invert
+    NRF52, components/nrf52, nrf52.svg
 
 Microcontroller Peripherals
 ---------------------------
@@ -401,7 +402,7 @@ Environmental
     HYT271, components/sensor/hyt271, hyt271.jpg, Temperature & Humidity
     Inkbird IBS-TH1 Mini, components/sensor/inkbird_ibsth1_mini, inkbird_isbth1_mini.jpg, Temperature & Humidity
     Internal Temperature, components/sensor/internal_temperature, thermometer.svg, Temperature, dark-invert
-    LPS22, components/sensor/lps22, lps22.jpg, Temperature & Barometric Pressure
+    LPS22, components/sensor/lps22, lps22.avif, Temperature & Barometric Pressure
     MCP9808, components/sensor/mcp9808, mcp9808.jpg, Temperature
     MH-Z19, components/sensor/mhz19, mhz19.jpg, CO2 & Temperature
     MLX90614, components/sensor/mlx90614, mlx90614.jpg, Temperature
