@@ -3,7 +3,7 @@ OpenEnergyMonitor EmonTx Sensors
 
 .. seo::
     :description: Instructions for setting up OpenEnergyMonitor EmonTx energy monitors with ESPHome.
-    :image: emontx.jpg
+    :image: emontx5.jpg
     :keywords: EmonTx, OpenEnergyMonitor, energy monitor, power monitoring, CT clamp
 
 .. _emontx-component:
