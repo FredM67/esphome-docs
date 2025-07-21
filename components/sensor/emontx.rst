@@ -170,7 +170,7 @@ You can combine both HTTP and MQTT forwarding in a single configuration:
 With this configuration, the raw JSON data will be published to the topic ``emon/emontx`` on the local MQTT broker ``192.168.1.10``. It will also be sent to the remote emoncms server using HTTP POST requests.
 
 Filtering JSON Data Before Forwarding
-************************************
+*************************************
 
 One advantage of using the ``on_json`` trigger is that you can process the JSON data before forwarding it. This is particularly useful when not all CT clamps are connected to your EmonTx, resulting in values that are always zero.
 
