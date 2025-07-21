@@ -1,7 +1,10 @@
 OpenEnergyMonitor EmonTx Sensors
 ================================
 
-.. seo:: :description: Instructions for setting up OpenEnergyMonitor EmonTx energy monitors with ESPHome. :image: emontx.jpg :keywords: EmonTx, OpenEnergyMonitor, energy monitor, power monitoring, CT clamp
+.. seo::
+    :description: Instructions for setting up OpenEnergyMonitor EmonTx energy monitors with ESPHome.
+    :image: emontx.jpg
+    :keywords: EmonTx, OpenEnergyMonitor, energy monitor, power monitoring, CT clamp
 
 .. _emontx-component:
 
@@ -36,6 +39,9 @@ As the communication with the EmonTx is done using UART, you need to have an :re
 
     emontx:
       id: myemontx
+      on_json:
+        - then:
+            # Actions to perform when JSON data is received
 
 Configuration variables
 -----------------------
@@ -44,28 +50,21 @@ In `emontx` platform:
 
 - **id** (*Optional*, :ref:`config-id`): Manually specify the ID used for code generation or multiple hubs.
 - **uart_id** (*Optional*, :ref:`config-id`): Manually specify the ID of the UART Component if you want to use multiple UART buses.
-- **emoncms** (*Optional*): For forwarding data to an `emoncms` server.
+- **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the ``raw_json`` variable contains the received JSON data as a string. A JSON object is also available as ``json`` variable, which can be used to access specific fields in the JSON data.
 
-  - **http** (*Optional*): For forwarding data to an HTTP server.
+Data Forwarding with on_json
+----------------------------
 
-    - **server** (**Required**): The URL of the emoncms server.
-    - **apikey** (**Required**, string): The API Read/Write key for the emoncms server.
-    - **node** (**Required**, string): The node ID to use for the emoncms server.
+The ``on_json`` trigger provides a flexible way to handle the JSON data received from the EmonTx. You can use this trigger to:
 
-  - **mqtt** (*Optional*): For forwarding data to an MQTT broker, including emoncms via MQTT.
+1. Forward data to local/remote emoncms via HTTP
+2. Forward data to a local emoncms instance via MQTT
+3. Publish data to MQTT topics
+4. Process or transform the data before forwarding
+5. Implement custom logic based on the received data
 
-    - **publish_mode** (*Optional*, enum): The MQTT publish mode. Defaults to ``json``.
-
-      - ``json`` - Publish the raw JSON as receive from EmonTx
-      - ``individual`` - Publish each value individually
-
-    - **base_prefix** (*Optional*, string): The MQTT base prefix to use for publishing data. Defaults to ``emon``.
-    - **node** (*Optional*, string): The MQTT node to use for publishing data. Defaults to ``${device_name}``.
-
-Emoncms Integration
--------------------
-
-This integration is typically intended to forward data to an emoncms server, such as `emoncms.org <https://emoncms.org/>`_ or a locally hosted instance.
+Emoncms Forwarding
+------------------
 
 .. warning::
 
@@ -73,79 +72,160 @@ This integration is typically intended to forward data to an emoncms server, suc
     remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
     reboot every 15 minutes because no client connected to the native API.
 
-There's two ways to send data to emoncms: via HTTP or MQTT.
+Forwarding to emoncms via HTTP
+******************************
 
-If you configure the ``emoncms`` option, you must either define the :doc:`/components/http_request` component or the :doc:`/components/mqtt` component in your configuration.
-This is required for the component to communicate with the emoncms server.
+To forward data to emoncms via HTTP, you can use the ``http_request.post`` action within the ``on_json`` trigger:
 
-The http method
-***************
-The component will forward data to the emoncms server using HTTP POST requests.
-The data will be forwarded in JSON format, which is the expected format for emoncms.
+.. code-block:: yaml
 
-This method is suitable for sending data to a remote emoncms server or a locally hosted instance.
+    substitutions:
+      emoncms_server: "https://emoncms.org"
+      emoncms_node: "emontx"
+      emoncms_apikey: !secret emoncms_org_apikey
 
-Example:
+    http_request:
+      useragent: esphome/emontx
+      timeout: 10s
+
+    emontx:
+      on_json:
+        - then:
+            - http_request.post:
+                url: !lambda 'return "${emoncms_server}/input/post";'
+                request_headers:
+                  Content-Type: "application/x-www-form-urlencoded"
+                body: !lambda |-
+                  return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
+
+.. note::
+
+    The ``node`` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
+
+
+Forwarding to emoncms via MQTT
+******************************
+
+To forward data to a local emoncms via MQTT, you can use the ``mqtt.publish`` action within the ``on_json`` trigger:
 
 .. code-block:: yaml
 
     http_request:
       useragent: esphome/emontx
       timeout: 10s
-    
-    emontx:
-      emoncms:
-        http:
-          server: "https://emoncms.org"
-          apikey: YOUR_API_KEY
-          node: 1
-
-.. note::
-
-    The ``node`` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
-
-The MQTT method
-***************
-This method is suitable for sending data to a locally hosted emoncms instance or any other MQTT broker that supports the emoncms MQTT protocol.
-
-As of now `emoncms.org` does not support MQTT, so this method is primarily for local installations or other compatible systems.
-
-You'll have two possibilities to forward data to emoncms via MQTT:
-
-1. **Publish the raw JSON**: This method publishes the raw JSON data received from the EmonTx to the MQTT broker. This is the default method as it is more efficient and ensures all readings are in the same tim
-
-2. **Publish individual values**: This method publishes each sensor value individually to separate MQTT topics.
-
-The component will publish all sensor data to topics following this structure:
-
-- ``<base_prefix>/<node>/{json_data}`` for raw JSON data
-- ``<base_prefix>/<node>/<sensor_name>`` for individual sensor values
-
-Example:
-
-.. code-block:: yaml
 
     mqtt:
       broker: 192.168.1.10
-      port: 1883           # Optional
-      username: mqtt_user  # Optional
-      password: mqtt_pass  # Optional
-      id: mqtt_client      # Optional
-    
+      port: 1883 # Optional
+      username: mqtt_user # Optional
+      password: mqtt_pass # Optional
+      id: mqtt_client # Optional
+
     emontx:
-      emoncms:
-        mqtt:
-          publish_mode: individual
-          base_prefix: "emon"
-          node: "emontx"
+      on_json:
+        - then:
+            - mqtt.publish:
+                topic: emon/emontx
+                payload: !lambda 'return raw_json;'
+                qos: 0
+                retain: false
 
-With this configuration, data will be published to topics such as:
+With this configuration, the raw JSON data will be published to the topic ``emon/emontx``.
 
-- ``emon/emontx/V1`` for voltage on phase 1
-- ``emon/emontx/P1`` for power on CT1
-- ``emon/emontx/E1`` for energy on CT1
+Combined Example
+****************
 
-For integration with emoncms via MQTT, use the base prefix that includes any node identification required by your emoncms instance.
+You can combine both HTTP and MQTT forwarding in a single configuration:
+
+.. code-block:: yaml
+
+    substitutions:
+      emoncms_server: "https://emoncms.org"
+      emoncms_node: "emontx"
+      emoncms_apikey: !secret emoncms_org_apikey
+
+    mqtt:
+      broker: 192.168.1.10
+      port: 1883 # Optional
+      username: mqtt_user # Optional
+      password: mqtt_pass # Optional
+      id: mqtt_client # Optional
+
+    emontx:
+      on_json:
+        - then:
+            - mqtt.publish:
+                topic: emon/emontx
+                payload: !lambda 'return raw_json;'
+                qos: 0
+                retain: false
+
+            - http_request.post:
+                url: !lambda 'return "${emoncms_server}/input/post";'
+                request_headers:
+                  Content-Type: "application/x-www-form-urlencoded"
+                body: !lambda |-
+                  return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
+
+With this configuration, the raw JSON data will be published to the topic ``emon/emontx`` on the local MQTT broker ``192.168.1.10``. It will also be sent to the remote emoncms server using HTTP POST requests.
+
+Filtering JSON Data Before Forwarding
+************************************
+
+One advantage of using the ``on_json`` trigger is that you can process the JSON data before forwarding it. This is particularly useful when not all CT clamps are connected to your EmonTx, resulting in values that are always zero.
+
+You can filter the JSON directly within the http_request.post action:
+
+.. code-block:: yaml
+
+   emontx:
+      on_json:
+        - then:
+            - http_request.post:
+                url: !lambda 'return "${emoncms_server}/input/post";'
+                request_headers:
+                  Content-Type: "application/x-www-form-urlencoded"
+                body: !lambda |-
+                  // The json variable is already available as a parsed object
+                  // Remove unused CT values (assuming CT4, CT5, CT6 are not connected)
+                  json.remove("P4");
+                  json.remove("P5");
+                  json.remove("P6");
+                  json.remove("E4");
+                  json.remove("E5");
+                  json.remove("E6");
+
+                  // Convert back to string for forwarding
+                  std::string filtered_json;
+                  serializeJson(json, filtered_json);
+
+                  return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + filtered_json;
+
+This example removes the unused CT values (P4, P5, P6, E4, E5, E6) from the JSON object before forwarding it to emoncms. The `serializeJson(json, filtered_json)` function converts the modified JSON object back to a string for the HTTP request.
+
+The same filtering can be applied to the MQTT payload if you are also publishing to MQTT:
+
+.. code-block:: yaml
+
+    emontx:
+      on_json:
+        - then:
+            - mqtt.publish:
+                topic: emon/emontx
+                payload: !lambda |-
+                  // Remove unused CT values from the JSON object
+                  json.remove("P4");
+                  json.remove("P5");
+                  json.remove("P6");
+                  json.remove("E4");
+                  json.remove("E5");
+                  json.remove("E6");
+
+                  // Convert back to string for MQTT payload
+                  std::string filtered_json;
+                  serializeJson(json, filtered_json);
+
+                  return filtered_json;
 
 MQTT Integration
 ----------------
@@ -178,7 +258,7 @@ Example:
       username: mqtt_user  # Optional
       password: mqtt_pass  # Optional
       id: mqtt_client      # Optional
-    
+
     emontx:
 
     sensor:
@@ -335,12 +415,12 @@ The pulse sensor is a single counter input and doesn't use indexing.
 
     The actual availability of sensors depends on your specific EmonTx configuration and firmware.
     Not all sensor indexes may be active or report values in your setup.
-    
+
     For example, in a single-phase system, only Vrms/V1 will provide readings, while V2 and V3 won't be available.
 
     To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
     You can also use the ESPHome logs to see which sensors are reporting data.
-    
+
     For example:
 
     .. code-block:: text
