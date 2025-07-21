@@ -68,7 +68,8 @@ Emoncms Forwarding
 
 .. warning::
 
-    If you enable ``emoncms`` and you do *not* use the :doc:`/components/api`, ie the module is exclusively used for forwarding data to Emoncms and it's *not* connected to any Home Assistant instance, you must
+    If you do *not* use the :doc:`/components/api`, ie the module is exclusively used for forwarding data to Emoncms and
+    it's *not* connected to any Home Assistant instance, you must
     remove the ``api:`` configuration or set ``reboot_timeout: 0s``, otherwise the ESP will
     reboot every 15 minutes because no client connected to the native API.
 
