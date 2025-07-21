@@ -111,10 +111,6 @@ To forward data to a local emoncms via MQTT, you can use the ``mqtt.publish`` ac
 
 .. code-block:: yaml
 
-    http_request:
-      useragent: esphome/emontx
-      timeout: 10s
-
     mqtt:
       broker: 192.168.1.10
       port: 1883 # Optional
@@ -144,6 +140,10 @@ You can combine both HTTP and MQTT forwarding in a single configuration:
       emoncms_server: "https://emoncms.org"
       emoncms_node: "emontx"
       emoncms_apikey: !secret emoncms_org_apikey
+
+    http_request:
+      useragent: esphome/emontx
+      timeout: 10s
 
     mqtt:
       broker: 192.168.1.10
