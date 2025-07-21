@@ -178,7 +178,7 @@ You can filter the JSON directly within the http_request.post action:
 
 .. code-block:: yaml
 
-   emontx:
+    emontx:
       on_json:
         - then:
             - http_request.post:
