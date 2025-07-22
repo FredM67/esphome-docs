@@ -59,9 +59,10 @@ The ``on_json`` trigger provides a flexible way to handle the JSON data received
 
 1. Forward data to local/remote emoncms via HTTP
 2. Forward data to a local emoncms instance via MQTT
-3. Publish data to MQTT topics
-4. Process or transform the data before forwarding
-5. Implement custom logic based on the received data
+3. Send data to any local/remote HTTP endpoint
+4. Publish data to MQTT topics
+5. Process or transform the data before forwarding
+6. Implement custom logic based on the received data
 
 Emoncms Forwarding
 ------------------
@@ -102,6 +103,21 @@ To forward data to emoncms via HTTP, you can use the ``http_request.post`` actio
 .. note::
 
     The ``node`` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
+
+.. note::
+
+    If you want to send data to a non-EmonCMS server, you will need to adapt the ``http_request.post`` action to match the requirements of your desired endpoint.
+    For example, to send data as JSON to a generic REST API, you might use:
+
+    .. code-block:: yaml
+
+        - http_request.post:
+            url: "https://your-api-endpoint.example.com/data"
+            request_headers:
+              Content-Type: "application/json"
+            body: !lambda 'return raw_json;'
+
+    See the `ESPHome HTTP Request documentation <https://esphome.io/components/http_request.html>`_ for more details on customizing requests.
 
 
 Forwarding to emoncms via MQTT
