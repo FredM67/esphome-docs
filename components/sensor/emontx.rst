@@ -117,7 +117,7 @@ To forward data to emoncms via HTTP, you can use the ``http_request.post`` actio
               Content-Type: "application/json"
             body: !lambda 'return raw_json;'
 
-    See the `ESPHome HTTP Request documentation <https://esphome.io/components/http_request.html>`_ for more details on customizing requests.
+    See the `ESPHome HTTP Request documentation </components/http_request.html>`_ for more details on customizing requests.
 
 
 Forwarding to emoncms via MQTT
