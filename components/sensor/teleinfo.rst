@@ -103,6 +103,40 @@ Sensor
 - **teleinfo_id** (*Optional*, :ref:`config-id`): Specify the ID of used hub.
 - All other options from :ref:`Sensor <config-sensor>`.
 
+Pre-defined Sensor Configurations
+*********************************
+
+The teleinfo component includes pre-defined configurations for all standard/historical TIC (Télé-Information Client) tags. When you specify a `tag_name`, the component automatically applies the appropriate:
+
+- unit_of_measurement
+- device_class
+- state_class
+- accuracy (number of decimals)
+
+For example, when using the "PAPP" tag (apparent power), the sensor will automatically use "VA" as the unit of measurement, "power" as the device class, "measurement" as the state class, and 0 decimals.
+
+.. code-block:: yaml
+
+    # Example using pre-defined configuration
+    sensor:
+      - platform: teleinfo
+        tag_name: "PAPP"
+        name: "Apparent Power"
+        # No need to specify unit_of_measurement, device_class, etc.
+        teleinfo_id: myteleinfo
+
+You can override any pre-defined value by explicitly setting it in your configuration:
+
+.. code-block:: yaml
+
+    sensor:
+      - platform: teleinfo
+        tag_name: "PAPP"
+        name: "Apparent Power"
+        unit_of_measurement: "volt-ampere"  # Override the pre-defined unit
+        accuracy_decimals: 1                # Override the pre-defined accuracy
+        teleinfo_id: myteleinfo
+
 Text Sensor
 ***********
 
