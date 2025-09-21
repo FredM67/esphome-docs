@@ -7,13 +7,11 @@ params:
     image: emontx5.jpg
 ---
 
-
-
 {{< anchor "emontx-component" >}}
 
 ## Component/Hub
 
-The `emontx`   component allows you to use ESPHome to create a connection to an OpenEnergyMonitor emonTX via a supported device (ESP32 recommended).
+The `emontx` component allows you to use ESPHome to create a connection to an OpenEnergyMonitor emonTX via a supported device (ESP32 recommended).
 This component is a global hub that establishes the connection to the EmonTx via [UART](#uart) and translates the received data.
 Using the [emontx sensors](#emontx-sensors), you can then create sensors for Home Assistant that track voltage, current, power as measured by CTs (up to 12), pulse data, and temperature depending on the configuration of the emonTX.
 
@@ -23,7 +21,7 @@ This component can also be used to send data to a remote emoncms instance such a
 
 {{< img src="emontx5.jpg" alt="OpenEnergyMonitor EmonTx5" caption="OpenEnergyMonitor EmonTx." width="50.0%" class="align-center" >}}
 
-As the communication with the EmonTx is done using UART, you need to have an [UART bus](#uart) in your configuration with the `rx_pin`   connected to the data pin of the EmonTx and with the baud rate set to 115200.
+As the communication with the EmonTx is done using UART, you need to have an [UART bus](#uart) in your configuration with the `rx_pin` connected to the data pin of the EmonTx and with the baud rate set to 115200.
 
 ```yaml
 # Example configuration entry
@@ -40,37 +38,39 @@ emontx:
         # Actions to perform when JSON data is received
 
 ```
+
 ## Configuration variables
 
 In `emontx` platform:
 
-- **id** (*Optional*, [config-id](#config-id)): Manually specify the ID used for code generation or multiple hubs.
-- **uart_id** (*Optional*, [config-id](#config-id)): Manually specify the ID of the UART Component if you want to use multiple UART buses.
-- **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json`   variable contains the received JSON data as a string. A JSON object is also available as `json`   variable, which can be used to access specific fields in the JSON data.
+- **id** (*Optional*, [ID](#config-id)): Manually specify the ID used for code generation or multiple hubs.
+- **uart_id** (*Optional*, [ID](#config-id)): Manually specify the ID of the UART Component if you want to use multiple UART buses.
+- **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable contains the received JSON data as a string. A JSON object is also available as `json` variable, which can be used to access specific fields in the JSON data.
 
 ## Data Forwarding with on_json
 
-The `on_json`   trigger provides a flexible way to handle the JSON data received from the EmonTx. You can use this trigger to:
+The `on_json` trigger provides a flexible way to handle the JSON data received from the EmonTx. You can use this trigger to:
 
 1. Forward data to local/remote emoncms via HTTP
-2. Forward data to a local emoncms instance via MQTT
-3. Send data to any local/remote HTTP endpoint
-4. Publish data to MQTT topics
-5. Process or transform the data before forwarding
-6. Implement custom logic based on the received data
+1. Forward data to a local emoncms instance via MQTT
+1. Send data to any local/remote HTTP endpoint
+1. Publish data to MQTT topics
+1. Process or transform the data before forwarding
+1. Implement custom logic based on the received data
 
 ## Emoncms Forwarding
 
 {{< warning >}}
 If you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data to Emoncms and
 it's *not* connected to any Home Assistant instance, you must
-remove the `api:`   configuration or set `reboot_timeout: 0s`  , otherwise the ESP will
+remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will
 reboot every 15 minutes because no client connected to the native API.
 
 {{< /warning >}}
+
 ### Forwarding to emoncms via HTTP
 
-To forward data to emoncms via HTTP, you can use the `http_request.post`   action within the `on_json`   trigger:
+To forward data to emoncms via HTTP, you can use the `http_request.post` action within the `on_json` trigger:
 
 ```yaml
 substitutions:
@@ -93,12 +93,13 @@ emontx:
               return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
 
 ```
+
 {{< note >}}
-The `node`   parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
+The `node` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
 
 {{< /note >}}
 {{< note >}}
-If you want to send data to a non-EmonCMS server, you will need to adapt the `http_request.post`   action to match the requirements of your desired endpoint.
+If you want to send data to a non-EmonCMS server, you will need to adapt the `http_request.post` action to match the requirements of your desired endpoint.
 For example, to send data as JSON to a generic REST API, you might use:
 
 ```yaml
@@ -109,13 +110,14 @@ For example, to send data as JSON to a generic REST API, you might use:
     body: !lambda 'return raw_json;'
 
 ```
+
 See the [ESPHome HTTP Request documentation](/components/http_request.html) for more details on customizing requests.
 
-
 {{< /note >}}
+
 ### Forwarding to emoncms via MQTT
 
-To forward data to a local emoncms via MQTT, you can use the `mqtt.publish`   action within the `on_json`   trigger:
+To forward data to a local emoncms via MQTT, you can use the `mqtt.publish` action within the `on_json` trigger:
 
 ```yaml
 mqtt:
@@ -135,7 +137,8 @@ emontx:
             retain: false
 
 ```
-With this configuration, the raw JSON data will be published to the topic `emon/emontx`  .
+
+With this configuration, the raw JSON data will be published to the topic `emon/emontx`.
 
 ### Combined Example
 
@@ -175,11 +178,12 @@ emontx:
               return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
 
 ```
-With this configuration, the raw JSON data will be published to the topic `emon/emontx`   on the local MQTT broker `192.168.1.10`  . It will also be sent to the remote emoncms server using HTTP POST requests.
+
+With this configuration, the raw JSON data will be published to the topic `emon/emontx` on the local MQTT broker `192.168.1.10`. It will also be sent to the remote emoncms server using HTTP POST requests.
 
 ### Filtering JSON Data Before Forwarding
 
-One advantage of using the `on_json`   trigger is that you can process the JSON data before forwarding it. This is particularly useful when not all CT clamps are connected to your EmonTx, resulting in values that are always zero.
+One advantage of using the `on_json` trigger is that you can process the JSON data before forwarding it. This is particularly useful when not all CT clamps are connected to your EmonTx, resulting in values that are always zero.
 
 You can filter the JSON directly within the http_request.post action:
 
@@ -208,6 +212,7 @@ emontx:
               return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + filtered_json;
 
 ```
+
 This example removes the unused CT values (P4, P5, P6, E4, E5, E6) from the JSON object before forwarding it to emoncms. The `serializeJson(json, filtered_json)` function converts the modified JSON object back to a string for the HTTP request.
 
 The same filtering can be applied to the MQTT payload if you are also publishing to MQTT:
@@ -234,17 +239,18 @@ emontx:
               return filtered_json;
 
 ```
+
 ## MQTT Integration
 
 This integration is typically intended to forward data to a non-Home Assistant system, such as Jeedom, Domoticz, or a custom MQTT consumer.
 
 {{< warning >}}
-If you enable `mqtt`   forwarding and you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must
-remove the `api:`   configuration or set `reboot_timeout: 0s`  , otherwise the ESP will
+If you enable `mqtt` forwarding and you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must
+remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will
 reboot every 15 minutes because no client connected to the native API.
 
 {{< /warning >}}
-If you configure the `mqtt`   option, you will need to define the {{< docref "/components/mqtt" >}} component in your configuration.
+If you configure the `mqtt` option, you will need to define the {{< docref "/components/mqtt" >}} component in your configuration.
 This is required for the component to publish data to the MQTT broker.
 
 The component will publish all sensor data to topics following this structure:
@@ -275,10 +281,11 @@ sensor:
     name: "Energy CT2"
 
 ```
+
 With this configuration, data will be published to topics such as:
 
-- `${device_name}/sensor/Vrms`   for voltage
-- `${device_name}/sensor/E2`   for energy on CT2
+- `${device_name}/sensor/Vrms` for voltage
+- `${device_name}/sensor/E2` for energy on CT2
 
 You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
 See the {{< docref "/components/mqtt" >}} documentation for more details on how to configure MQTT topics.
@@ -298,9 +305,11 @@ The EmonTx component provides several sensors that can be used to monitor variou
 - **Temperature**: Reports temperatures of connected Dallas DS18B20 sensors.
 
 ### Predefined Sensor Configuration
+
 Each type of sensor in the EmonTx component has predefined configuration parameters:
 
 #### Power (P)
+
 Power sensors have the following default configuration:
 
 - Unit of Measurement: W (Watt)
@@ -309,6 +318,7 @@ Power sensors have the following default configuration:
 - Accuracy: 0 decimal place
 
 #### Energy (E)
+
 Energy sensors have the following default configuration:
 
 - Unit of Measurement: Wh (Watt-hours)
@@ -317,6 +327,7 @@ Energy sensors have the following default configuration:
 - Accuracy: 0 decimal places
 
 #### Voltage (V)
+
 Voltage sensors have the following default configuration:
 
 - Unit of Measurement: V (Volt)
@@ -325,6 +336,7 @@ Voltage sensors have the following default configuration:
 - Accuracy: 2 decimal places
 
 #### Current (I)
+
 Current sensors have the following default configuration:
 
 - Unit of Measurement: A (Ampere)
@@ -333,6 +345,7 @@ Current sensors have the following default configuration:
 - Accuracy: 2 decimal places
 
 #### Power Factor (PF)
+
 Power factor sensors have the following default configuration:
 
 - Unit of Measurement: (dimensionless)
@@ -341,6 +354,7 @@ Power factor sensors have the following default configuration:
 - Accuracy: 2 decimal places
 
 #### Temperature (T)
+
 Temperature sensors have the following default configuration:
 
 - Unit of Measurement: °C (Celsius)
@@ -349,6 +363,7 @@ Temperature sensors have the following default configuration:
 - Accuracy: 2 decimal place
 
 #### Pulse (PULSE)
+
 Pulse sensors have the following default configuration:
 
 - Unit of Measurement: pulses
@@ -361,6 +376,7 @@ These predefined configurations can be overridden in your YAML configuration if 
 The EmonTx sensors use a specific indexing scheme that depends on the physical configuration of your EmonTx device:
 
 #### Voltage (V1-V3)
+
 Voltage sensors are indexed based on your power system configuration:
 
 - **Vrms**: Voltage reading for single-phase systems
@@ -369,35 +385,41 @@ Voltage sensors are indexed based on your power system configuration:
 - **V3**: Voltage reading for phase 3 in three-phase systems
 
 #### Power (P1-P12)
+
 Power sensors are indexed based on the CT clamp connections:
 
 - **P1-P6**: Power readings for CT1-CT6 on the standard EmonTx
 - **P7-P12**: Power readings for CT7-CT12 when an expansion board is present
 
 #### Energy (E1-E12)
+
 Energy sensors follow the same indexing scheme as power sensors:
 
 - **E1-E6**: Energy accumulation for CT1-CT6 on the standard EmonTx
 - **E7-E12**: Energy accumulation for CT7-CT12 when an expansion board is present
 
 #### Current (I1-I12)
+
 Current sensors are indexed according to the CT inputs:
 
 - **I1-I6**: Current readings from CT1-CT6 on the standard EmonTx
 - **I7-I12**: Current readings from CT7-CT12 when an expansion board is present
 
 #### Power Factor (PF1-PF12)
+
 Power factor sensors follow the same indexing as the CT inputs:
 
 - **PF1-PF6**: Power factor for CT1-CT6 on the standard EmonTx
 - **PF7-PF12**: Power factor for CT7-CT12 when an expansion board is present
 
 #### Temperature (T1-T3)
+
 Temperature sensors are indexed according to the connected temperature probes:
 
 - **T1-T3**: Readings from up to 3 temperature sensors (usually DS18B20)
 
 #### Pulse (PULSE, DIGPULSE, ANAPULSE)
+
 The pulse sensor is a single counter input and doesn't use indexing.
 
 {{< note >}}
@@ -415,8 +437,11 @@ For example:
 [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0,"P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
 
 ```
+
 {{< /note >}}
+
 ### Example of Sensor Configuration
+
 Here is an example of how to configure the EmonTx sensors in your ESPHome YAML configuration:
 
 ```yaml
@@ -450,6 +475,7 @@ sensor:
     name: "Pulse"
 
 ```
+
 ## Hardware Setup
 
 The EmonTx can be connected to your ESP device via the serial UART interface.
@@ -459,6 +485,6 @@ Depending on your emontx version, an expansion board may be available in the sho
 Make sure the EmonTx is configured to output data in JSON format. The default baud rate for communication is 115200.
 
 ## See Also
+
 - [sensor-filters](#sensor-filters)
 - [OpenEnergyMonitor](https://openenergymonitor.org/)
-
