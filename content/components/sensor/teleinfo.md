@@ -46,7 +46,7 @@ teleinfo:
 
 ```
 
-## Configuration variables:
+## Configuration variables
 
 In teleinfo platform:
 
