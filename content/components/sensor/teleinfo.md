@@ -45,8 +45,8 @@ teleinfo:
   id: myteleinfo
 
 ```
-## Configuration variables:
 
+## Configuration variables:
 
 In teleinfo platform:
 
@@ -86,6 +86,7 @@ sensor:
     teleinfo_id: myteleinfo
 
 ```
+
 - **tag_name** (**Required**, string): Specify the tag you want to retrieve from the Teleinformation.
 - **teleinfo_id** (*Optional*, [ID](#config-id)): Specify the ID of used hub.
 - All other options from [Sensor](#config-sensor).
@@ -111,6 +112,7 @@ sensor:
     teleinfo_id: myteleinfo
 
 ```
+
 You can override any pre-defined value by explicitly setting it in your configuration:
 
 ```yaml
@@ -123,6 +125,7 @@ sensor:
     teleinfo_id: myteleinfo
 
 ```
+
 ### Text Sensor
 
 ```yaml
@@ -133,12 +136,11 @@ text_sensor:
     teleinfo_id: myteleinfo
 
 ```
+
 - **tag_name** (**Required**, string): Specify the tag you want to retrieve from the Teleinformation.
 - **teleinfo_id** (*Optional*, [ID](#config-id)): Specify the ID of used hub.
 - All other options from [Text Sensor](#config-text_sensor).
 
-
 ## See Also
 
 - {{< apiref "teleinfo/teleinfo.h" "teleinfo/teleinfo.h" >}}
-
