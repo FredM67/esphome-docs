@@ -12,7 +12,7 @@ params:
 ## Component/Hub
 
 The `emontx` component allows you to use ESPHome to create a connection to an OpenEnergyMonitor emonTX via a supported device (ESP32 recommended).
-This component is a global hub that establishes the connection to the EmonTx via [UART](#uart) and translates the received data.
+This component is a global hub that establishes the connection to the EmonTx via [UART bus](/components/uart) and translates the received data.
 Using the [emontx sensors](#emontx-sensors), you can then create sensors for Home Assistant that track voltage, current, power as measured by CTs (up to 12), pulse data, and temperature depending on the configuration of the emonTX.
 
 The component can send data to an MQTT Broker either as JSON or as individual topics to be consumed by any system.
@@ -21,7 +21,7 @@ This component can also be used to send data to a remote emoncms instance such a
 
 {{< img src="emontx5.jpg" alt="OpenEnergyMonitor EmonTx5" caption="OpenEnergyMonitor EmonTx." width="50.0%" class="align-center" >}}
 
-As the communication with the EmonTx is done using UART, you need to have an [UART bus](#uart) in your configuration with the `rx_pin` connected to the data pin of the EmonTx and with the baud rate set to 115200.
+As the communication with the EmonTx is done using UART, you need to have an [UART bus](/components/uart) in your configuration with the `rx_pin` connected to the data pin of the EmonTx and with the baud rate set to 115200.
 
 ```yaml
 # Example configuration entry
@@ -43,8 +43,8 @@ emontx:
 
 In `emontx` platform:
 
-- **id** (*Optional*, [ID](#config-id)): Manually specify the ID used for code generation or multiple hubs.
-- **uart_id** (*Optional*, [ID](#config-id)): Manually specify the ID of the UART Component if you want to use multiple UART buses.
+- **id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID used for code generation or multiple hubs.
+- **uart_id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID of the [UART Component](/components/uart) if you want to use multiple UART buses.
 - **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable contains the received JSON data as a string. A JSON object is also available as `json` variable, which can be used to access specific fields in the JSON data.
 
 ## Data Forwarding with on_json
@@ -60,13 +60,8 @@ The `on_json` trigger provides a flexible way to handle the JSON data received f
 
 ## Emoncms Forwarding
 
-{{< warning >}}
-If you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data to Emoncms and
-it's *not* connected to any Home Assistant instance, you must
-remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will
-reboot every 15 minutes because no client connected to the native API.
-
-{{< /warning >}}
+> [!WARNING]
+> If you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data to Emoncms and it's *not* connected to any Home Assistant instance, you must remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will reboot every 15 minutes because no client connected to the native API.
 
 ### Forwarding to emoncms via HTTP
 
@@ -94,13 +89,12 @@ emontx:
 
 ```
 
-{{< note >}}
-The `node` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
+> [!NOTE]
+> The `node` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
 
-{{< /note >}}
-{{< note >}}
-If you want to send data to a non-EmonCMS server, you will need to adapt the `http_request.post` action to match the requirements of your desired endpoint.
-For example, to send data as JSON to a generic REST API, you might use:
+> [!NOTE]
+> If you want to send data to a non-EmonCMS server, you will need to adapt the `http_request.post` action to match the requirements of your desired endpoint.
+> For example, to send data as JSON to a generic REST API, you might use:
 
 ```yaml
 - http_request.post:
@@ -244,22 +238,18 @@ emontx:
 
 This integration is typically intended to forward data to a non-Home Assistant system, such as Jeedom, Domoticz, or a custom MQTT consumer.
 
-{{< warning >}}
-If you enable `mqtt` forwarding and you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must
-remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will
-reboot every 15 minutes because no client connected to the native API.
+> [!WARNING]
+> If you enable `mqtt` forwarding and you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will reboot every 15 minutes because no client connected to the native API.
 
-{{< /warning >}}
 If you configure the `mqtt` option, you will need to define the {{< docref "/components/mqtt" >}} component in your configuration.
 This is required for the component to publish data to the MQTT broker.
 
 The component will publish all sensor data to topics following this structure:
 `${device_name}/sensor/<sensor_name>`
 
-{{< note >}}
-Only sensor(s) defined in the configuration will be published (see [Sensors](#emontx-sensors)).
+> [!NOTE]
+> Only sensor(s) defined in the configuration will be published (see [Sensors](#emontx-sensors)).
 
-{{< /note >}}
 Example:
 
 ```yaml
@@ -422,23 +412,21 @@ Temperature sensors are indexed according to the connected temperature probes:
 
 The pulse sensor is a single counter input and doesn't use indexing.
 
-{{< note >}}
-The actual availability of sensors depends on your specific EmonTx configuration and firmware.
-Not all sensor indexes may be active or report values in your setup.
-
-For example, in a single-phase system, only Vrms/V1 will provide readings, while V2 and V3 won't be available.
-
-To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
-You can also use the ESPHome logs to see which sensors are reporting data.
-
-For example:
-
-```text
-[14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0,"P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
-
-```
-
-{{< /note >}}
+> [!NOTE]
+> The actual availability of sensors depends on your specific EmonTx configuration and firmware.
+> Not all sensor indexes may be active or report values in your setup.
+>
+> For example, in a single-phase system, only Vrms/V1 will provide readings, while V2 and V3 won't be available.
+>
+> To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
+> You can also use the ESPHome logs to see which sensors are reporting data.
+>
+> For example:
+>
+> ```text
+> [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0, "P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
+>
+> ```
 
 ### Example of Sensor Configuration
 
