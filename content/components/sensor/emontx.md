@@ -45,7 +45,7 @@ In `emontx` platform:
 
 - **id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID used for code generation or multiple hubs.
 - **uart_id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID of the [UART Component](/components/uart) if you want to use multiple UART buses.
-- **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable contains the received JSON data as a string. A JSON object is also available as `json` variable, which can be used to access specific fields in the JSON data.
+- **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable (string type) contains the received JSON data as a string. A parsed JSON object is also available as the `json` variable (JsonObject type), which can be used to access and manipulate specific fields in the JSON data.
 
 ## Data Forwarding with on_json
 
@@ -243,7 +243,13 @@ If you configure the `mqtt` option, you will need to define the {{< docref "/com
 This is required for the component to publish data to the MQTT broker.
 
 The component will publish all sensor data to topics following this structure:
-`${device_name}/sensor/<sensor_name>`
+`<device_name>/sensor/<sensor_name>`
+
+Where `<device_name>` is the ESPHome device name defined in your configuration (the `name:` field at the top of your YAML file).
+
+For example, if your device name is `emontx_living_room`, data will be published to topics like:
+- `emontx_living_room/sensor/Vrms` for voltage
+- `emontx_living_room/sensor/E2` for energy on CT2
 
 > [!NOTE]
 > Only sensor(s) defined in the configuration will be published (see [Sensors](#emontx-sensors)).
@@ -269,11 +275,6 @@ sensor:
     name: "Energy CT2"
 
 ```
-
-With this configuration, data will be published to topics such as:
-
-- `${device_name}/sensor/Vrms` for voltage
-- `${device_name}/sensor/E2` for energy on CT2
 
 You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
 See the {{< docref "/components/mqtt" >}} documentation for more details on how to configure MQTT topics.
@@ -348,7 +349,7 @@ Temperature sensors have the following default configuration:
 - Unit of Measurement: °C (Celsius)
 - Device Class: temperature
 - State Class: measurement
-- Accuracy: 2 decimal place
+- Accuracy: 2 decimal places
 
 #### Pulse (PULSE)
 
@@ -451,7 +452,7 @@ sensor:
     tag_name: "I3"
     name: "Current CT3"
   - platform: emontx
-    tag_name: "pf1"
+    tag_name: "PF1"
     name: "Power factor CT1"
   - platform: emontx
     tag_name: "T1"
