@@ -95,19 +95,17 @@ emontx:
 > [!NOTE]
 > If you want to send data to a non-EmonCMS server, you will need to adapt the `http_request.post` action to match the requirements of your desired endpoint.
 > For example, to send data as JSON to a generic REST API, you might use:
-
-```yaml
-- http_request.post:
-    url: "https://your-api-endpoint.example.com/data"
-    request_headers:
-      Content-Type: "application/json"
-    body: !lambda 'return raw_json;'
-
-```
-
-See the [ESPHome HTTP Request documentation](/components/http_request.html) for more details on customizing requests.
-
-{{< /note >}}
+>
+> ```yaml
+> - http_request.post:
+>     url: "https://your-api-endpoint.example.com/data"
+>     request_headers:
+>       Content-Type: "application/json"
+>     body: !lambda 'return raw_json;'
+> 
+> ```
+>
+> See the [ESPHome HTTP Request documentation](/components/http_request.html) for more details on customizing requests.
 
 ### Forwarding to emoncms via MQTT
 
@@ -474,5 +472,5 @@ Make sure the EmonTx is configured to output data in JSON format. The default ba
 
 ## See Also
 
-- [sensor-filters](#sensor-filters)
+- [Sensor Filters](/components/sensor#sensor-filters)
 - [OpenEnergyMonitor](https://openenergymonitor.org/)
