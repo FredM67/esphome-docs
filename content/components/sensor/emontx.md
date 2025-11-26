@@ -248,6 +248,7 @@ The component will publish all sensor data to topics following this structure:
 Where `<device_name>` is the ESPHome device name defined in your configuration (the `name:` field at the top of your YAML file).
 
 For example, if your device name is `emontx_living_room`, data will be published to topics like:
+
 - `emontx_living_room/sensor/Vrms` for voltage
 - `emontx_living_room/sensor/E2` for energy on CT2
 
