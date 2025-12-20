@@ -46,6 +46,7 @@ In `emontx` platform:
 - **id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID used for code generation or multiple hubs.
 - **uart_id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID of the [UART Component](/components/uart) if you want to use multiple UART buses.
 - **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable (string type) contains the received JSON data as a string. A parsed JSON object is also available as the `json` variable (JsonObject type), which can be used to access and manipulate specific fields in the JSON data.
+- **config_panel** (*Optional*, boolean): Set to `true` to enable support for the [emonPi/Tx Configuration HACS integration](https://github.com/FredM67/ha-emon-config). When enabled, the component automatically registers a `send_command` service and fires events for all serial data. Defaults to `false`.
 
 ## Data Forwarding with on_json
 
@@ -131,6 +132,8 @@ emontx:
 ```
 
 With this configuration, the raw JSON data will be published to the topic `emon/emontx`.
+
+The topic `emon/emontx` follows the emoncms default format: the `emon` prefix is what **emonhub** listens for to automatically pick up data, and `emontx` is the Node name under which the data will appear in emoncms.
 
 ### Combined Example
 
@@ -279,6 +282,28 @@ sensor:
 
 You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
 See the {{< docref "/components/mqtt" >}} documentation for more details on how to configure MQTT topics.
+
+## Home Assistant Configuration Panel
+
+This component can be combined with the [emonPi/Tx Configuration HACS integration](https://github.com/FredM67/ha-emon-config). The HACS integration provides a web-based interface within Home Assistant for configuring the emonTx device (CT calibration, voltage calibration, radio settings), a serial terminal for direct communication, and live data display.
+
+To enable support for the HACS integration, add `config_panel: true` to your emontx configuration:
+
+```yaml
+api:
+  encryption:
+    key: !secret api_encryption_key
+  custom_services: true
+
+emontx:
+  config_panel: true
+
+```
+
+> [!NOTE]
+> The `custom_services: true` option in the `api` configuration is required to enable the automatically registered `send_command` service.
+
+See the [HACS integration documentation](https://github.com/FredM67/ha-emon-config) for installation and usage instructions.
 
 {{< anchor "emontx-sensors" >}}
 
