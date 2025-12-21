@@ -45,9 +45,9 @@ In `emontx` platform:
 
 - **id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID used for code generation or multiple hubs.
 - **uart_id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID of the [UART Component](/components/uart) if you want to use multiple UART buses.
+- **config_panel** (*Optional*, boolean): Set to `true` to enable support for the [emonPi/Tx Configuration HACS integration](https://github.com/FredM67/ha-emon-config). When enabled, the component automatically registers a `send_command` service and fires events for all serial data. Defaults to `false`.
 - **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable (string type) contains the received JSON data as a string. A parsed JSON object is also available as the `json` variable (JsonObject type), which can be used to access and manipulate specific fields in the JSON data.
 - **on_data** (*Optional*): An automation that will be triggered for every serial line received from the EmonTx (both plain text and JSON). Within this trigger, the `data` variable (string type) contains the received line. This is useful for debugging, logging all serial output, or handling configuration responses from the EmonTx.
-- **config_panel** (*Optional*, boolean): Set to `true` to enable support for the [emonPi/Tx Configuration HACS integration](https://github.com/FredM67/ha-emon-config). When enabled, the component automatically registers a `send_command` service and fires events for all serial data. Defaults to `false`.
 
 ## Data Forwarding with on_json
 
