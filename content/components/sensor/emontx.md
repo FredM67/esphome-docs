@@ -73,7 +73,7 @@ To forward data to emoncms via HTTP, you can use the `http_request.post` action 
 substitutions:
   emoncms_server: "https://emoncms.org"
   emoncms_node: "emontx"
-  emoncms_apikey: !secret emoncms_org_apikey
+  emoncms_apikey: !secret emoncms_rw_apikey
 
 http_request:
   useragent: esphome/emontx
@@ -90,6 +90,9 @@ emontx:
               return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
 
 ```
+
+> [!NOTE]
+> The emoncms API key must be a **Read/Write API key**. Read-only API keys will not work for posting data. You can find your Read/Write API key in the emoncms web interface under **My Account** > **API Keys**.
 
 > [!NOTE]
 > The `node` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
@@ -134,7 +137,7 @@ emontx:
 
 With this configuration, the raw JSON data will be published to the topic `emon/emontx`.
 
-The topic `emon/emontx` follows the emoncms default format: the `emon` prefix is what **emonhub** listens for to automatically pick up data, and `emontx` is the Node name under which the data will appear in emoncms.
+The topic `emon/emontx` follows the emoncms default format: the `emon` prefix is what the **emoncms MQTT service** subscribes to for incoming data, and `emontx` is the Node name under which the data will appear in emoncms.
 
 ### Combined Example
 
@@ -144,7 +147,7 @@ You can combine both HTTP and MQTT forwarding in a single configuration:
 substitutions:
   emoncms_server: "https://emoncms.org"
   emoncms_node: "emontx"
-  emoncms_apikey: !secret emoncms_org_apikey
+  emoncms_apikey: !secret emoncms_rw_apikey
 
 http_request:
   useragent: esphome/emontx
