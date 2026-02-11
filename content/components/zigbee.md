@@ -10,8 +10,9 @@ params:
 The `zigbee` component allows exposing supported ESPHome components over a Zigbee network to Home Assistant
 via **Zigbee2MQTT** or **ZHA**. Due to the limitations of the Zigbee protocol, only basic properties are exposed.
 Additional properties must be configured manually in Home Assistant. Each ESPHome entity consumes one Zigbee endpoint.
-Because of a limitation in Zigbee2MQTT, at least two endpoints are required. The maximum number of supported endpoints
-is eight.
+Single endpoint requires ZHA or at least Zigbee2MQTT 2.8.0. For older versions of Zigbee2MQTT use multiple endpoints.
+Spaces in names require ZHA or at least Zigbee2MQTT 2.8.0. For older versions of Zigbee2MQTT do not use spaces.
+The maximum number of supported endpoints is eight.
 
 Zigbee support is currently available only on `nRF52` platforms.
 
@@ -48,6 +49,16 @@ binary_sensor:
 - **power_source** (*Optional*, enum): Indicates what kind of power the device uses. Affects
   sleep behavior. One of `UNKNOWN`, `MAINS_SINGLE_PHASE`, `MAINS_THREE_PHASE`, `BATTERY`,
   `DC_SOURCE`, `EMERGENCY_MAINS_CONST`, or `EMERGENCY_MAINS_TRANSF`. Defaults to `DC_SOURCE`.
+
+- **ieee802154_vendor_oui** (*Optional*, int): Sets the Vendor Organizationally Unique Identifier (OUI).
+  This allows replacing Nordic Semiconductor's default company ID with your own.
+  The value must be a 24-bit integer in the range `0x000000` to `0xFFFFFF`.
+  Alternatively, set to `random` to generate a new random OUI on every firmware compilation.
+  This is useful during development to force the coordinator (ZHA/Z2M) to recognize the device
+  as new after firmware updates.
+
+> [!WARNING]
+> Overusing `random` may exhaust memory in the Zigbee coordinator by creating many "ghost" devices.
 
 ## Actions
 
@@ -140,6 +151,37 @@ switch:
 - **internal** (*Optional*, boolean): Mark this component as internal. Internal components will
   not be exposed over Zigbee. Only specifying an `id` without a `name` will implicitly set this to true.
   Use this if you run out of Zigbee endpoints.
+
+### Number Configuration
+
+All numbers with a `name` are automatically exposed over Zigbee.
+
+```yaml
+number:
+  - platform: template
+    name: "Template Number"
+    optimistic: true
+    min_value: 2
+    max_value: 100
+    step: 1
+```
+
+#### Configuration variables
+
+- **name** (**Required**, string): The name for the number. This is exposed as the
+  Zigbee endpoint description.
+- **internal** (*Optional*, boolean): Mark this component as internal. Internal components will
+  not be exposed over Zigbee. Only specifying an `id` without a `name` will implicitly set this to true.
+  Use this if you run out of Zigbee endpoints.
+- **unit_of_measurement** (*Optional*, string): Manually set the unit. By default, values are unitless.
+  Only a limited set of units is supported. Unsupported units will revert to unitless.
+  This is exposed as the Zigbee endpoint engineering units.
+- **min_value** (*Optional*, float): The minimum value this number can be. This is exposed as the
+  Zigbee endpoint min present value.
+- **max_value** (*Optional*, float): The maximum value this number can be. This is exposed as the
+  Zigbee endpoint max present value.
+- **step** (*Optional*, float): The granularity with which the number can be set. This is exposed
+  as the Zigbee endpoint resolution.
 
 ## See Also
 
