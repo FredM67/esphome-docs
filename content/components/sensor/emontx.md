@@ -45,7 +45,7 @@ In `emontx` platform:
 
 - **id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID used for code generation or multiple hubs.
 - **uart_id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID of the [UART Component](/components/uart) if you want to use multiple UART buses.
-- **config_panel** (*Optional*, boolean): Set to `true` to enable support for the [emonPi/Tx Configuration HACS integration](https://github.com/FredM67/ha-emon-config). When enabled, the component automatically registers a `send_command` service and fires events for all serial data. Defaults to `false`.
+- **config_panel** (*Optional*, boolean): Set to `true` to enable support for the [emonPi/Tx Configuration HACS integration](https://github.com/FredM67/ha-emon-config). When enabled, the component fires `esphome.emontx_raw` and `esphome.emontx_json` events for all serial data. See the [Home Assistant Configuration Panel](#home-assistant-configuration-panel) section for the required `api:` configuration. Defaults to `false`.
 - **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable (string type) contains the received JSON data as a string. A parsed JSON object is also available as the `json` variable (JsonObject type), which can be used to access and manipulate specific fields in the JSON data.
 - **on_data** (*Optional*): An automation that will be triggered for every serial line received from the EmonTx (both plain text and JSON). Within this trigger, the `data` variable (string type) contains the received line. This is useful for debugging, logging all serial output, or handling configuration responses from the EmonTx.
 
@@ -291,13 +291,20 @@ See the {{< docref "/components/mqtt" >}} documentation for more details on how 
 
 This component can be combined with the [emonPi/Tx Configuration HACS integration](https://github.com/FredM67/ha-emon-config). The HACS integration provides a web-based interface within Home Assistant for configuring the emonTx device (CT calibration, voltage calibration, radio settings), a serial terminal for direct communication, and live data display.
 
-To enable support for the HACS integration, add `config_panel: true` to your emontx configuration:
+To enable support for the HACS integration, add `config_panel: true` to your emontx configuration and define the `send_command` service in the `api` section:
 
 ```yaml
 api:
   encryption:
     key: !secret api_encryption_key
   custom_services: true
+  actions:
+    - action: send_command
+      variables:
+        command: string
+      then:
+        - emontx.send_command:
+            command: !lambda 'return command;'
 
 emontx:
   config_panel: true
@@ -305,7 +312,7 @@ emontx:
 ```
 
 > [!NOTE]
-> The `custom_services: true` option in the `api` configuration is required to enable the automatically registered `send_command` service.
+> The `custom_services: true` option and the `send_command` action in the `api` configuration are required for the HACS integration to send commands to the emonTx device. The `config_panel: true` option enables automatic firing of `esphome.emontx_raw` and `esphome.emontx_json` events.
 
 See the [HACS integration documentation](https://github.com/FredM67/ha-emon-config) for installation and usage instructions.
 
