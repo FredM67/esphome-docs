@@ -9,8 +9,6 @@ params:
 
 {{< anchor "emontx-component" >}}
 
-## Component/Hub
-
 The `emontx` component allows you to use ESPHome to create a connection to an OpenEnergyMonitor emonTX via a supported device (ESP32 recommended).
 This component is a global hub that establishes the connection to the EmonTx via [UART bus](/components/uart) and translates the received data.
 Using the [emontx sensors](#emontx-sensors), you can then create sensors for Home Assistant that track voltage, current, power as measured by CTs (up to 12), pulse data, and temperature depending on the configuration of the emonTX.
@@ -20,6 +18,16 @@ The component can send data to an MQTT Broker either as JSON or as individual to
 This component can also be used to send data to a remote emoncms instance such as [emoncms](https://emoncms.org/) via HTTP or a locally hosted system via HTTP or MQTT. Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
 
 {{< img src="emontx5.jpg" alt="OpenEnergyMonitor EmonTx5" caption="OpenEnergyMonitor EmonTx." width="50.0%" class="align-center" >}}
+
+## Hardware Setup
+
+The EmonTx can be connected to your ESP device via the serial UART interface.
+
+Depending on your emontx version, an expansion board may be available in the shop that will simplify the wiring. You can also use the standard EmonTx without an expansion board, but you will need to wire the UART/Vcc/Gnd pins manually.
+
+Make sure the EmonTx is configured to output data in JSON format. The default baud rate for communication is 115200.
+
+## Component/Hub
 
 As the communication with the EmonTx is done using UART, you need to have an [UART bus](/components/uart) in your configuration with the `rx_pin` connected to the data pin of the EmonTx and with the baud rate set to 115200.
 
@@ -48,250 +56,33 @@ In `emontx` platform:
 - **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable (string type) contains the received JSON data as a string. A parsed JSON object is also available as the `json` variable (JsonObject type), which can be used to access and manipulate specific fields in the JSON data.
 - **on_data** (*Optional*): An automation that will be triggered for every serial line received from the EmonTx (both plain text and JSON). Within this trigger, the `data` variable (string type) contains the received line. This is useful for debugging, logging all serial output, or handling configuration responses from the EmonTx.
 
-## Data Forwarding with on_json
+## Quick Start
 
-The `on_json` trigger provides a flexible way to handle the JSON data received from the EmonTx. You can use this trigger to:
-
-1. Forward data to local/remote emoncms via HTTP
-1. Forward data to a local emoncms instance via MQTT
-1. Send data to any local/remote HTTP endpoint
-1. Publish data to MQTT topics
-1. Process or transform the data before forwarding
-1. Implement custom logic based on the received data
-
-## Emoncms Forwarding
-
-> [!WARNING]
-> If you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data to Emoncms and it's *not* connected to any Home Assistant instance, you must remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will reboot every 15 minutes because no client connected to the native API.
-
-### Forwarding to emoncms via HTTP
-
-To forward data to emoncms via HTTP, you can use the `http_request.post` action within the `on_json` trigger:
+Here is a minimal working configuration to get started with basic sensor readings from the EmonTx:
 
 ```yaml
-substitutions:
-  emoncms_server: "https://emoncms.org"
-  emoncms_node: "emontx"
-  emoncms_apikey: !secret emoncms_rw_apikey
-
-http_request:
-  useragent: esphome/emontx
-  timeout: 10s
-
-emontx:
-  on_json:
-    - then:
-        - http_request.post:
-            url: !lambda 'return "${emoncms_server}/input/post";'
-            request_headers:
-              Content-Type: "application/x-www-form-urlencoded"
-            body: !lambda |-
-              return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
-
-```
-
-> [!NOTE]
-> The emoncms API key must be a **Read/Write API key**. Read-only API keys will not work for posting data. You can find your Read/Write API key in the emoncms web interface under **My Account** > **API Keys**.
-
-> [!NOTE]
-> The `node` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
-
-> [!NOTE]
-> If you want to send data to a non-EmonCMS server, you will need to adapt the `http_request.post` action to match the requirements of your desired endpoint.
-> For example, to send data as JSON to a generic REST API, you might use:
->
-> ```yaml
-> - http_request.post:
->     url: "https://your-api-endpoint.example.com/data"
->     request_headers:
->       Content-Type: "application/json"
->     body: !lambda 'return raw_json;'
-> 
-> ```
->
-> See the [ESPHome HTTP Request documentation](/components/http_request.html) for more details on customizing requests.
-
-### Forwarding to emoncms via MQTT
-
-To forward data to a local emoncms via MQTT, you can use the `mqtt.publish` action within the `on_json` trigger:
-
-```yaml
-mqtt:
-  broker: 192.168.1.10
-  port: 1883 # Optional
-  username: mqtt_user # Optional
-  password: mqtt_pass # Optional
-  id: mqtt_client # Optional
-
-emontx:
-  on_json:
-    - then:
-        - mqtt.publish:
-            topic: emon/emontx
-            payload: !lambda 'return raw_json;'
-            qos: 0
-            retain: false
-
-```
-
-With this configuration, the raw JSON data will be published to the topic `emon/emontx`.
-
-The topic `emon/emontx` follows the emoncms default format: the `emon` prefix is what the **emoncms MQTT service** subscribes to for incoming data, and `emontx` is the Node name under which the data will appear in emoncms.
-
-### Combined Example
-
-You can combine both HTTP and MQTT forwarding in a single configuration:
-
-```yaml
-substitutions:
-  emoncms_server: "https://emoncms.org"
-  emoncms_node: "emontx"
-  emoncms_apikey: !secret emoncms_rw_apikey
-
-http_request:
-  useragent: esphome/emontx
-  timeout: 10s
-
-mqtt:
-  broker: 192.168.1.10
-  port: 1883 # Optional
-  username: mqtt_user # Optional
-  password: mqtt_pass # Optional
-  id: mqtt_client # Optional
-
-emontx:
-  on_json:
-    - then:
-        - mqtt.publish:
-            topic: emon/emontx
-            payload: !lambda 'return raw_json;'
-            qos: 0
-            retain: false
-
-        - http_request.post:
-            url: !lambda 'return "${emoncms_server}/input/post";'
-            request_headers:
-              Content-Type: "application/x-www-form-urlencoded"
-            body: !lambda |-
-              return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
-
-```
-
-With this configuration, the raw JSON data will be published to the topic `emon/emontx` on the local MQTT broker `192.168.1.10`. It will also be sent to the remote emoncms server using HTTP POST requests.
-
-### Filtering JSON Data Before Forwarding
-
-One advantage of using the `on_json` trigger is that you can process the JSON data before forwarding it. This is particularly useful when not all CT clamps are connected to your EmonTx, resulting in values that are always zero.
-
-You can filter the JSON directly within the http_request.post action:
-
-```yaml
-emontx:
-  on_json:
-    - then:
-        - http_request.post:
-            url: !lambda 'return "${emoncms_server}/input/post";'
-            request_headers:
-              Content-Type: "application/x-www-form-urlencoded"
-            body: !lambda |-
-              // The json variable is already available as a parsed object
-              // Remove unused CT values (assuming CT4, CT5, CT6 are not connected)
-              json.remove("P4");
-              json.remove("P5");
-              json.remove("P6");
-              json.remove("E4");
-              json.remove("E5");
-              json.remove("E6");
-
-              // Convert back to string for forwarding
-              std::string filtered_json;
-              serializeJson(json, filtered_json);
-
-              return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + filtered_json;
-
-```
-
-This example removes the unused CT values (P4, P5, P6, E4, E5, E6) from the JSON object before forwarding it to emoncms. The `serializeJson(json, filtered_json)` function converts the modified JSON object back to a string for the HTTP request.
-
-The same filtering can be applied to the MQTT payload if you are also publishing to MQTT:
-
-```yaml
-emontx:
-  on_json:
-    - then:
-        - mqtt.publish:
-            topic: emon/emontx
-            payload: !lambda |-
-              // Remove unused CT values from the JSON object
-              json.remove("P4");
-              json.remove("P5");
-              json.remove("P6");
-              json.remove("E4");
-              json.remove("E5");
-              json.remove("E6");
-
-              // Convert back to string for MQTT payload
-              std::string filtered_json;
-              serializeJson(json, filtered_json);
-
-              return filtered_json;
-
-```
-
-## MQTT Integration
-
-This integration is typically intended to forward data to a non-Home Assistant system, such as Jeedom, Domoticz, or a custom MQTT consumer.
-
-> [!WARNING]
-> If you enable `mqtt` forwarding and you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will reboot every 15 minutes because no client connected to the native API.
-
-If you configure the `mqtt` option, you will need to define the {{< docref "/components/mqtt" >}} component in your configuration.
-This is required for the component to publish data to the MQTT broker.
-
-The component will publish all sensor data to topics following this structure:
-`<device_name>/sensor/<sensor_name>`
-
-Where `<device_name>` is the ESPHome device name defined in your configuration (the `name:` field at the top of your YAML file).
-
-For example, if your device name is `emontx_living_room`, data will be published to topics like:
-
-- `emontx_living_room/sensor/Vrms` for voltage
-- `emontx_living_room/sensor/E2` for energy on CT2
-
-> [!NOTE]
-> Only sensor(s) defined in the configuration will be published (see [Sensors](#emontx-sensors)).
-
-Example:
-
-```yaml
-mqtt:
-  broker: 192.168.1.10
-  port: 1883           # Optional
-  username: mqtt_user  # Optional
-  password: mqtt_pass  # Optional
-  id: mqtt_client      # Optional
+uart:
+  id: emontx_uart
+  rx_pin: GPIO16
+  tx_pin: GPIO17
+  baud_rate: 115200
 
 emontx:
 
 sensor:
   - platform: emontx
-    tag_name: "Vrms"
+    tag_name: "V1"
     name: "Voltage"
   - platform: emontx
-    tag_name: "E2"
-    name: "Energy CT2"
+    tag_name: "P1"
+    name: "Power CT1"
+  - platform: emontx
+    tag_name: "E1"
+    name: "Energy CT1"
 
 ```
 
-You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
-See the {{< docref "/components/mqtt" >}} documentation for more details on how to configure MQTT topics.
-
-## Home Assistant Configuration Panel
-
-A companion [HACS integration](https://github.com/FredM67/ha-emon-config) is available that provides a web-based interface within Home Assistant for configuring the emonTx device (CT calibration, voltage calibration, radio settings), a serial terminal for direct communication, and live data display.
-
-> [!NOTE]
-> The HACS integration currently requires additional configuration beyond what is available in the official ESPHome component. See the [HACS integration documentation](https://github.com/FredM67/ha-emon-config) for setup instructions.
+This will create three sensors in Home Assistant tracking voltage, power, and energy from the first CT channel. See the [Sensors](#emontx-sensors) section below for all available sensor types and their tag names.
 
 {{< anchor "emontx-sensors" >}}
 
@@ -477,13 +268,250 @@ sensor:
 
 ```
 
-## Hardware Setup
+## Data Forwarding with on_json
 
-The EmonTx can be connected to your ESP device via the serial UART interface.
+The `on_json` trigger provides a flexible way to handle the JSON data received from the EmonTx. You can use this trigger to:
 
-Depending on your emontx version, an expansion board may be available in the shop that will simplify the wiring. You can also use the standard EmonTx without an expansion board, but you will need to wire the UART/Vcc/Gnd pins manually.
+1. Forward data to local/remote emoncms via HTTP
+1. Forward data to a local emoncms instance via MQTT
+1. Send data to any local/remote HTTP endpoint
+1. Publish data to MQTT topics
+1. Process or transform the data before forwarding
+1. Implement custom logic based on the received data
 
-Make sure the EmonTx is configured to output data in JSON format. The default baud rate for communication is 115200.
+## Emoncms Forwarding
+
+> [!WARNING]
+> If you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data to Emoncms and it's *not* connected to any Home Assistant instance, you must remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will reboot every 15 minutes because no client connected to the native API.
+
+### Forwarding to emoncms via HTTP
+
+To forward data to emoncms via HTTP, you can use the `http_request.post` action within the `on_json` trigger:
+
+```yaml
+substitutions:
+  emoncms_server: "https://emoncms.org"
+  emoncms_node: "emontx"
+  emoncms_apikey: !secret emoncms_rw_apikey
+
+http_request:
+  useragent: esphome/emontx
+  timeout: 10s
+
+emontx:
+  on_json:
+    - then:
+        - http_request.post:
+            url: !lambda 'return "${emoncms_server}/input/post";'
+            request_headers:
+              Content-Type: "application/x-www-form-urlencoded"
+            body: !lambda |-
+              return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
+
+```
+
+> [!NOTE]
+> The emoncms API key must be a **Read/Write API key**. Read-only API keys will not work for posting data. You can find your Read/Write API key in the emoncms web interface under **My Account** > **API Keys**.
+
+> [!NOTE]
+> The `node` parameter must be compliant with what emoncms expects. Depending on your emoncms server configuration, this could be a numeric ID (like "1") or a string identifier. Check your emoncms server documentation to ensure you're using the correct node format.
+
+> [!NOTE]
+> If you want to send data to a non-EmonCMS server, you will need to adapt the `http_request.post` action to match the requirements of your desired endpoint.
+> For example, to send data as JSON to a generic REST API, you might use:
+>
+> ```yaml
+> - http_request.post:
+>     url: "https://your-api-endpoint.example.com/data"
+>     request_headers:
+>       Content-Type: "application/json"
+>     body: !lambda 'return raw_json;'
+>
+> ```
+>
+> See the [ESPHome HTTP Request documentation](/components/http_request.html) for more details on customizing requests.
+
+### Forwarding to emoncms via MQTT
+
+To forward data to a local emoncms via MQTT, you can use the `mqtt.publish` action within the `on_json` trigger:
+
+```yaml
+mqtt:
+  broker: 192.168.1.10
+  port: 1883 # Optional
+  username: mqtt_user # Optional
+  password: mqtt_pass # Optional
+  id: mqtt_client # Optional
+
+emontx:
+  on_json:
+    - then:
+        - mqtt.publish:
+            topic: emon/emontx
+            payload: !lambda 'return raw_json;'
+            qos: 0
+            retain: false
+
+```
+
+With this configuration, the raw JSON data will be published to the topic `emon/emontx`.
+
+The topic `emon/emontx` follows the emoncms default format: the `emon` prefix is what the **emoncms MQTT service** subscribes to for incoming data, and `emontx` is the Node name under which the data will appear in emoncms.
+
+### Combined Example
+
+You can combine both HTTP and MQTT forwarding in a single configuration:
+
+```yaml
+substitutions:
+  emoncms_server: "https://emoncms.org"
+  emoncms_node: "emontx"
+  emoncms_apikey: !secret emoncms_rw_apikey
+
+http_request:
+  useragent: esphome/emontx
+  timeout: 10s
+
+mqtt:
+  broker: 192.168.1.10
+  port: 1883 # Optional
+  username: mqtt_user # Optional
+  password: mqtt_pass # Optional
+  id: mqtt_client # Optional
+
+emontx:
+  on_json:
+    - then:
+        - mqtt.publish:
+            topic: emon/emontx
+            payload: !lambda 'return raw_json;'
+            qos: 0
+            retain: false
+
+        - http_request.post:
+            url: !lambda 'return "${emoncms_server}/input/post";'
+            request_headers:
+              Content-Type: "application/x-www-form-urlencoded"
+            body: !lambda |-
+              return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
+
+```
+
+With this configuration, the raw JSON data will be published to the topic `emon/emontx` on the local MQTT broker `192.168.1.10`. It will also be sent to the remote emoncms server using HTTP POST requests.
+
+### Filtering JSON Data Before Forwarding
+
+One advantage of using the `on_json` trigger is that you can process the JSON data before forwarding it. This is particularly useful when not all CT clamps are connected to your EmonTx, resulting in values that are always zero.
+
+You can filter the JSON directly within the http_request.post action:
+
+```yaml
+emontx:
+  on_json:
+    - then:
+        - http_request.post:
+            url: !lambda 'return "${emoncms_server}/input/post";'
+            request_headers:
+              Content-Type: "application/x-www-form-urlencoded"
+            body: !lambda |-
+              // The json variable is already available as a parsed object
+              // Remove unused CT values (assuming CT4, CT5, CT6 are not connected)
+              json.remove("P4");
+              json.remove("P5");
+              json.remove("P6");
+              json.remove("E4");
+              json.remove("E5");
+              json.remove("E6");
+
+              // Convert back to string for forwarding
+              std::string filtered_json;
+              serializeJson(json, filtered_json);
+
+              return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + filtered_json;
+
+```
+
+This example removes the unused CT values (P4, P5, P6, E4, E5, E6) from the JSON object before forwarding it to emoncms. The `serializeJson(json, filtered_json)` function converts the modified JSON object back to a string for the HTTP request.
+
+The same filtering can be applied to the MQTT payload if you are also publishing to MQTT:
+
+```yaml
+emontx:
+  on_json:
+    - then:
+        - mqtt.publish:
+            topic: emon/emontx
+            payload: !lambda |-
+              // Remove unused CT values from the JSON object
+              json.remove("P4");
+              json.remove("P5");
+              json.remove("P6");
+              json.remove("E4");
+              json.remove("E5");
+              json.remove("E6");
+
+              // Convert back to string for MQTT payload
+              std::string filtered_json;
+              serializeJson(json, filtered_json);
+
+              return filtered_json;
+
+```
+
+## MQTT Integration
+
+This integration is typically intended to forward data to a non-Home Assistant system, such as Jeedom, Domoticz, or a custom MQTT consumer.
+
+> [!WARNING]
+> If you enable `mqtt` forwarding and you do *not* use the {{< docref "/components/api" >}}, ie the module is exclusively used for forwarding data via MQTT and it's *not* connected to any Home Assistant instance, you must remove the `api:` configuration or set `reboot_timeout: 0s`, otherwise the ESP will reboot every 15 minutes because no client connected to the native API.
+
+If you configure the `mqtt` option, you will need to define the {{< docref "/components/mqtt" >}} component in your configuration.
+This is required for the component to publish data to the MQTT broker.
+
+The component will publish all sensor data to topics following this structure:
+`<device_name>/sensor/<sensor_name>`
+
+Where `<device_name>` is the ESPHome device name defined in your configuration (the `name:` field at the top of your YAML file).
+
+For example, if your device name is `emontx_living_room`, data will be published to topics like:
+
+- `emontx_living_room/sensor/Vrms` for voltage
+- `emontx_living_room/sensor/E2` for energy on CT2
+
+> [!NOTE]
+> Only sensor(s) defined in the configuration will be published (see [Sensors](#emontx-sensors)).
+
+Example:
+
+```yaml
+mqtt:
+  broker: 192.168.1.10
+  port: 1883           # Optional
+  username: mqtt_user  # Optional
+  password: mqtt_pass  # Optional
+  id: mqtt_client      # Optional
+
+emontx:
+
+sensor:
+  - platform: emontx
+    tag_name: "Vrms"
+    name: "Voltage"
+  - platform: emontx
+    tag_name: "E2"
+    name: "Energy CT2"
+
+```
+
+You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
+See the {{< docref "/components/mqtt" >}} documentation for more details on how to configure MQTT topics.
+
+## Home Assistant Configuration Panel
+
+A companion [HACS integration](https://github.com/FredM67/ha-emon-config) is available that provides a web-based interface within Home Assistant for configuring the emonTx device (CT calibration, voltage calibration, radio settings), a serial terminal for direct communication, and live data display.
+
+> [!NOTE]
+> The HACS integration currently requires additional configuration beyond what is available in the official ESPHome component. See the [HACS integration documentation](https://github.com/FredM67/ha-emon-config) for setup instructions.
 
 ## See Also
 
