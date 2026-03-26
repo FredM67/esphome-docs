@@ -9,46 +9,266 @@ params:
 
 {{< anchor "emontx-component" >}}
 
-## Component/Hub
-
 The `emontx` component allows you to use ESPHome to create a connection to an OpenEnergyMonitor emonTX via a supported device (ESP32 recommended).
-This component is a global hub that establishes the connection to the EmonTx via [UART bus](/components/uart) and translates the received data.
+
 Using the [emontx sensors](#emontx-sensors), you can then create sensors for Home Assistant that track voltage, current, power as measured by CTs (up to 12), pulse data, and temperature depending on the configuration of the emonTX.
 
-The component can send data to an MQTT Broker either as JSON or as individual topics to be consumed by any system.
-
-This component can also be used to send data to a remote emoncms instance such as [emoncms](https://emoncms.org/) via HTTP or a locally hosted system via HTTP or MQTT. Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
-
 {{< img src="emontx5.jpg" alt="OpenEnergyMonitor EmonTx5" caption="OpenEnergyMonitor EmonTx." width="50.0%" class="align-center" >}}
+
+## Hardware Setup
+
+The EmonTx can be connected to your ESP device via the serial UART interface.
+
+Depending on your emontx version, an expansion board may be available in the shop that will simplify the wiring. You can also use the standard EmonTx without an expansion board, but you will need to wire the UART/Vcc/Gnd pins manually.
+
+**Make sure the EmonTx is configured to output data in JSON format**. The default baud rate for communication is 115200.
+
+## Component/Hub
+
+This component is a global hub that establishes the connection to the EmonTx via [UART bus](/components/uart) and translates the received data.
 
 As the communication with the EmonTx is done using UART, you need to have an [UART bus](/components/uart) in your configuration with the `rx_pin` connected to the data pin of the EmonTx and with the baud rate set to 115200.
 
 ```yaml
-# Example configuration entry
+esphome:
+  name: emonwifi
+  friendly_name: emonWIFI
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key
+
+# Enable logging
+logger:
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
 uart:
-  id: emontx_uart # using UART2
-  rx_pin: GPIO16
-  tx_pin: GPIO17
+  id: emontx_uart
+  rx_pin: GPIO20
+  tx_pin: GPIO21
   baud_rate: 115200
 
 emontx:
-  id: myemontx
-  on_json:
-    - then:
-        # Actions to perform when JSON data is received
-
+  uart_id: emontx_uart
+  sensor:
+    - tag: P1
+      name: "Power 1"
+    - tag: P2
+      name: "Power 2"
+    - tag: E1
+      name: "Energy 1"
+    - tag: V1
+      name: "Voltage"
 ```
 
-## Configuration variables
-
-In `emontx` platform:
+## emontx platform configuration variables
 
 - **id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID used for code generation or multiple hubs.
 - **uart_id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID of the [UART Component](/components/uart) if you want to use multiple UART buses.
 - **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable (string type) contains the received JSON data as a string. A parsed JSON object is also available as the `json` variable (JsonObject type), which can be used to access and manipulate specific fields in the JSON data.
 - **on_data** (*Optional*): An automation that will be triggered for every serial line received from the EmonTx (both plain text and JSON). Within this trigger, the `data` variable (string type) contains the received line. This is useful for debugging, logging all serial output, or handling configuration responses from the EmonTx.
 
+## Sensors
+
+The EmonTx component provides several sensors that can be used to monitor various parameters:
+
+- **Power**: Calculates the power consumption based on the voltage and current readings.
+- **Energy**: Accumulates the energy consumption over time.
+- **Voltage**: Measures the voltage of the mains supply.
+- **Current**: Measures the current flowing through the connected CT clamps.
+- **Power Factor**: Calculates the power factor based on the voltage and current readings.
+- **Pulse**: Measures the number of pulses from the connected pulse sensor (interface S0 for example).
+- **Temperature**: Reports temperatures of connected Dallas DS18B20 sensors.
+
+### Predefined Sensor Configuration
+
+Each type of sensor in the EmonTx component has predefined configuration parameters:
+
+#### Power (P)
+
+Power sensors have the following default configuration:
+
+- Unit of Measurement: W (Watt)
+- Device Class: power
+- State Class: measurement
+- Accuracy: 0 decimal place
+
+#### Energy (E)
+
+Energy sensors have the following default configuration:
+
+- Unit of Measurement: Wh (Watt-hours)
+- Device Class: energy
+- State Class: total_increasing
+- Accuracy: 0 decimal places
+
+#### Voltage (V)
+
+Voltage sensors have the following default configuration:
+
+- Unit of Measurement: V (Volt)
+- Device Class: voltage
+- State Class: measurement
+- Accuracy: 2 decimal places
+
+#### Current (I)
+
+Current sensors have the following default configuration:
+
+- Unit of Measurement: A (Ampere)
+- Device Class: current
+- State Class: measurement
+- Accuracy: 2 decimal places
+
+#### Power Factor (PF)
+
+Power factor sensors have the following default configuration:
+
+- Unit of Measurement: (dimensionless)
+- Device Class: power_factor
+- State Class: measurement
+- Accuracy: 2 decimal places
+
+#### Temperature (T)
+
+Temperature sensors have the following default configuration:
+
+- Unit of Measurement: °C (Celsius)
+- Device Class: temperature
+- State Class: measurement
+- Accuracy: 2 decimal places
+
+#### Pulse (PULSE)
+
+Pulse sensors have the following default configuration:
+
+- Unit of Measurement: pulses
+- Accuracy: 0 decimal places (whole numbers)
+
+These predefined configurations can be overridden in your YAML configuration if needed.
+
+### Sensor Indexing
+
+The EmonTx sensors use a specific indexing scheme that depends on the physical configuration of your EmonTx device:
+
+#### Voltage (V1-V3)
+
+Voltage sensors are indexed based on your power system configuration:
+
+- **Vrms**: Voltage reading for single-phase systems
+- **V1**: Voltage reading for phase 1 in multi-phase systems
+- **V2**: Voltage reading for phase 2 in multi-phase systems
+- **V3**: Voltage reading for phase 3 in three-phase systems
+
+#### Power (P1-P12)
+
+Power sensors are indexed based on the CT clamp connections:
+
+- **P1-P6**: Power readings for CT1-CT6 on the standard EmonTx
+- **P7-P12**: Power readings for CT7-CT12 when an expansion board is present
+
+#### Energy (E1-E12)
+
+Energy sensors follow the same indexing scheme as power sensors:
+
+- **E1-E6**: Energy accumulation for CT1-CT6 on the standard EmonTx
+- **E7-E12**: Energy accumulation for CT7-CT12 when an expansion board is present
+
+#### Current (I1-I12)
+
+Current sensors are indexed according to the CT inputs:
+
+- **I1-I6**: Current readings from CT1-CT6 on the standard EmonTx
+- **I7-I12**: Current readings from CT7-CT12 when an expansion board is present
+
+#### Power Factor (PF1-PF12)
+
+Power factor sensors follow the same indexing as the CT inputs:
+
+- **PF1-PF6**: Power factor for CT1-CT6 on the standard EmonTx
+- **PF7-PF12**: Power factor for CT7-CT12 when an expansion board is present
+
+#### Temperature (T1-T3)
+
+Temperature sensors are indexed according to the connected temperature probes:
+
+- **T1-T3**: Readings from up to 3 temperature sensors (usually DS18B20)
+
+#### Pulse (PULSE, DIGPULSE, ANAPULSE)
+
+The pulse sensor is a single counter input and doesn't use indexing.
+
+> [!NOTE]
+> The actual availability of sensors depends on your specific EmonTx configuration and firmware.
+> Not all sensor indexes may be active or report values in your setup.
+>
+> For example, in a single-phase system, only Vrms/V1 will provide readings, while V2 and V3 won't be available.
+>
+> To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
+> You can also use the ESPHome logs to see which sensors are reporting data.
+>
+> For example:
+>
+> ```text
+> [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0, "P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
+>
+> ```
+
+### Example of Sensor Configuration
+
+Here is an example of how to configure the EmonTx sensors in your ESPHome YAML configuration:
+
+```yaml
+sensor:
+  - platform: emontx
+    tag_name: "V1"
+    name: "Voltage L1"
+  - platform: emontx
+    tag_name: "V2"
+    name: "Voltage L2"
+  - platform: emontx
+    tag_name: "V3"
+    name: "Voltage L3"
+  - platform: emontx
+    tag_name: "P1"
+    name: "Power CT1"
+  - platform: emontx
+    tag_name: "E2"
+    name: "Energy CT2"
+  - platform: emontx
+    tag_name: "I3"
+    name: "Current CT3"
+  - platform: emontx
+    tag_name: "PF1"
+    name: "Power factor CT1"
+  - platform: emontx
+    tag_name: "T1"
+    name: "Temp 1"
+  - platform: emontx
+    tag_name: "pulse"
+    name: "Pulse"
+
+```
+
+
 ## Data Forwarding with on_json
+
+The component can send data to an MQTT Broker either as JSON or as individual topics to be consumed by any system.
+
+This component can also be used to send data to a remote emoncms instance such as [emoncms](https://emoncms.org/) via HTTP or a locally hosted system via HTTP or MQTT. Working directly with emoncms seamlessly is a key benefit of this component, allowing you to integrate your energy monitoring data with powerful visualization and analysis tools.
 
 The `on_json` trigger provides a flexible way to handle the JSON data received from the EmonTx. You can use this trigger to:
 
@@ -286,204 +506,7 @@ sensor:
 You can customize the MQTT topic structure by modifying the `topic_prefix` parameters in the `mqtt` configuration.
 See the {{< docref "/components/mqtt" >}} documentation for more details on how to configure MQTT topics.
 
-## Home Assistant Configuration Panel
 
-A companion [HACS integration](https://github.com/FredM67/ha-emon-config) is available that provides a web-based interface within Home Assistant for configuring the emonTx device (CT calibration, voltage calibration, radio settings), a serial terminal for direct communication, and live data display.
-
-> [!NOTE]
-> The HACS integration currently requires additional configuration beyond what is available in the official ESPHome component. See the [HACS integration documentation](https://github.com/FredM67/ha-emon-config) for setup instructions.
-
-{{< anchor "emontx-sensors" >}}
-
-## Sensors
-
-The EmonTx component provides several sensors that can be used to monitor various parameters:
-
-- **Power**: Calculates the power consumption based on the voltage and current readings.
-- **Energy**: Accumulates the energy consumption over time.
-- **Voltage**: Measures the voltage of the mains supply.
-- **Current**: Measures the current flowing through the connected CT clamps.
-- **Power Factor**: Calculates the power factor based on the voltage and current readings.
-- **Pulse**: Measures the number of pulses from the connected pulse sensor (interface S0 for example).
-- **Temperature**: Reports temperatures of connected Dallas DS18B20 sensors.
-
-### Predefined Sensor Configuration
-
-Each type of sensor in the EmonTx component has predefined configuration parameters:
-
-#### Power (P)
-
-Power sensors have the following default configuration:
-
-- Unit of Measurement: W (Watt)
-- Device Class: power
-- State Class: measurement
-- Accuracy: 0 decimal place
-
-#### Energy (E)
-
-Energy sensors have the following default configuration:
-
-- Unit of Measurement: Wh (Watt-hours)
-- Device Class: energy
-- State Class: total_increasing
-- Accuracy: 0 decimal places
-
-#### Voltage (V)
-
-Voltage sensors have the following default configuration:
-
-- Unit of Measurement: V (Volt)
-- Device Class: voltage
-- State Class: measurement
-- Accuracy: 2 decimal places
-
-#### Current (I)
-
-Current sensors have the following default configuration:
-
-- Unit of Measurement: A (Ampere)
-- Device Class: current
-- State Class: measurement
-- Accuracy: 2 decimal places
-
-#### Power Factor (PF)
-
-Power factor sensors have the following default configuration:
-
-- Unit of Measurement: (dimensionless)
-- Device Class: power_factor
-- State Class: measurement
-- Accuracy: 2 decimal places
-
-#### Temperature (T)
-
-Temperature sensors have the following default configuration:
-
-- Unit of Measurement: °C (Celsius)
-- Device Class: temperature
-- State Class: measurement
-- Accuracy: 2 decimal places
-
-#### Pulse (PULSE)
-
-Pulse sensors have the following default configuration:
-
-- Unit of Measurement: pulses
-- Accuracy: 0 decimal places (whole numbers)
-
-These predefined configurations can be overridden in your YAML configuration if needed.
-
-### Sensor Indexing
-
-The EmonTx sensors use a specific indexing scheme that depends on the physical configuration of your EmonTx device:
-
-#### Voltage (V1-V3)
-
-Voltage sensors are indexed based on your power system configuration:
-
-- **Vrms**: Voltage reading for single-phase systems
-- **V1**: Voltage reading for phase 1 in multi-phase systems
-- **V2**: Voltage reading for phase 2 in multi-phase systems
-- **V3**: Voltage reading for phase 3 in three-phase systems
-
-#### Power (P1-P12)
-
-Power sensors are indexed based on the CT clamp connections:
-
-- **P1-P6**: Power readings for CT1-CT6 on the standard EmonTx
-- **P7-P12**: Power readings for CT7-CT12 when an expansion board is present
-
-#### Energy (E1-E12)
-
-Energy sensors follow the same indexing scheme as power sensors:
-
-- **E1-E6**: Energy accumulation for CT1-CT6 on the standard EmonTx
-- **E7-E12**: Energy accumulation for CT7-CT12 when an expansion board is present
-
-#### Current (I1-I12)
-
-Current sensors are indexed according to the CT inputs:
-
-- **I1-I6**: Current readings from CT1-CT6 on the standard EmonTx
-- **I7-I12**: Current readings from CT7-CT12 when an expansion board is present
-
-#### Power Factor (PF1-PF12)
-
-Power factor sensors follow the same indexing as the CT inputs:
-
-- **PF1-PF6**: Power factor for CT1-CT6 on the standard EmonTx
-- **PF7-PF12**: Power factor for CT7-CT12 when an expansion board is present
-
-#### Temperature (T1-T3)
-
-Temperature sensors are indexed according to the connected temperature probes:
-
-- **T1-T3**: Readings from up to 3 temperature sensors (usually DS18B20)
-
-#### Pulse (PULSE, DIGPULSE, ANAPULSE)
-
-The pulse sensor is a single counter input and doesn't use indexing.
-
-> [!NOTE]
-> The actual availability of sensors depends on your specific EmonTx configuration and firmware.
-> Not all sensor indexes may be active or report values in your setup.
->
-> For example, in a single-phase system, only Vrms/V1 will provide readings, while V2 and V3 won't be available.
->
-> To check what sensors are available in your EmonTx, you can refer to the EmonTx documentation or the firmware configuration.
-> You can also use the ESPHome logs to see which sensors are reporting data.
->
-> For example:
->
-> ```text
-> [14:43:36][I][emontx:099]: Received data: {"MSG":54378,"V1":234.16,"V2":234.13,"V3":234.22,"P1":0,"P2":0,"P3":0, "P4":0,"P5":0,"P6":0,"E1":74,"E2":-9,"E3":-12,"E4":7,"E5":-4,"E6":-6,"pulse":0}
->
-> ```
-
-### Example of Sensor Configuration
-
-Here is an example of how to configure the EmonTx sensors in your ESPHome YAML configuration:
-
-```yaml
-sensor:
-  - platform: emontx
-    tag_name: "V1"
-    name: "Voltage L1"
-  - platform: emontx
-    tag_name: "V2"
-    name: "Voltage L2"
-  - platform: emontx
-    tag_name: "V3"
-    name: "Voltage L3"
-  - platform: emontx
-    tag_name: "P1"
-    name: "Power CT1"
-  - platform: emontx
-    tag_name: "E2"
-    name: "Energy CT2"
-  - platform: emontx
-    tag_name: "I3"
-    name: "Current CT3"
-  - platform: emontx
-    tag_name: "PF1"
-    name: "Power factor CT1"
-  - platform: emontx
-    tag_name: "T1"
-    name: "Temp 1"
-  - platform: emontx
-    tag_name: "pulse"
-    name: "Pulse"
-
-```
-
-## Hardware Setup
-
-The EmonTx can be connected to your ESP device via the serial UART interface.
-
-Depending on your emontx version, an expansion board may be available in the shop that will simplify the wiring. You can also use the standard EmonTx without an expansion board, but you will need to wire the UART/Vcc/Gnd pins manually.
-
-Make sure the EmonTx is configured to output data in JSON format. The default baud rate for communication is 115200.
 
 ## See Also
 
