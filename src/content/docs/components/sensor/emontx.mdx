@@ -53,7 +53,6 @@ emontx:
         - logger.log:
             format: "Received JSON: %s"
             args: [raw_json.c_str()]
-
 ```
 
 ## Configuration variables
@@ -110,7 +109,6 @@ sensor:
   - platform: emontx
     tag_name: "E1"
     name: "Energy CT1"
-
 ```
 
 This will create three sensors in Home Assistant tracking voltage, power, and energy from the first CT channel. See the [Sensors](#emontx-sensors) section below for all available sensor types and their tag names.
@@ -188,7 +186,7 @@ Power factor sensors have the following default configuration:
 
 Temperature sensors have the following default configuration:
 
-- Unit of Measurement: C (Celsius)
+- Unit of Measurement: °C (Celsius)
 - Device Class: temperature
 - State Class: measurement
 - Accuracy: 2 decimal places
@@ -301,7 +299,6 @@ sensor:
   - platform: emontx
     tag_name: "pulse"
     name: "Pulse"
-
 ```
 
 ## Data Forwarding with on_json
@@ -343,7 +340,6 @@ emontx:
               Content-Type: "application/x-www-form-urlencoded"
             body: !lambda |-
               return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
-
 ```
 
 > [!NOTE]
@@ -387,7 +383,6 @@ emontx:
             payload: !lambda 'return raw_json;'
             qos: 0
             retain: false
-
 ```
 
 With this configuration, the raw JSON data will be published to the topic `emon/emontx`.
@@ -430,7 +425,6 @@ emontx:
               Content-Type: "application/x-www-form-urlencoded"
             body: !lambda |-
               return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + raw_json;
-
 ```
 
 With this configuration, the raw JSON data will be published to the topic `emon/emontx` on the local MQTT broker `192.168.1.10`. It will also be sent to the remote emoncms server using HTTP POST requests.
@@ -464,7 +458,6 @@ emontx:
               serializeJson(json, filtered_json);
 
               return "node=${emoncms_node}&apikey=${emoncms_apikey}&fulljson=" + filtered_json;
-
 ```
 
 This example removes the unused CT values (P4, P5, P6, E4, E5, E6) from the JSON object before forwarding it to emoncms. The `serializeJson(json, filtered_json)` function converts the modified JSON object back to a string for the HTTP request.
@@ -491,7 +484,6 @@ emontx:
               serializeJson(json, filtered_json);
 
               return filtered_json;
-
 ```
 
 ## MQTT Integration
@@ -533,7 +525,6 @@ sensor:
   - platform: emontx
     tag_name: "E2"
     name: "Energy CT2"
-
 ```
 
 You can customize the MQTT topic prefix by setting `topic_prefix` in the `mqtt` configuration.
