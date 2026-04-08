@@ -101,7 +101,7 @@ emontx:
 
 sensor:
   - platform: emontx
-    tag_name: "V1"  # Use "Vrms" for single-phase, "V1"-"V3" for multi-phase
+    tag_name: "V1"  # Use "V1"-"V3" for multi-phase; see Sensor Indexing for "Vrms" (single-phase)
     name: "Voltage"
   - platform: emontx
     tag_name: "P1"
@@ -208,7 +208,7 @@ The EmonTx sensors use a specific indexing scheme that depends on the physical c
 
 Voltage sensors are indexed based on your power system configuration:
 
-- **Vrms**: Voltage reading for single-phase systems
+- **Vrms**: Voltage reading for single-phase systems. Automatic defaults are not applied for this tag — you must manually specify `unit_of_measurement`, `device_class`, and `state_class`.
 - **V1**: Voltage reading for phase 1 in multi-phase systems
 - **V2**: Voltage reading for phase 2 in multi-phase systems
 - **V3**: Voltage reading for phase 3 in three-phase systems
@@ -522,6 +522,10 @@ sensor:
   - platform: emontx
     tag_name: "Vrms"
     name: "Voltage"
+    unit_of_measurement: V
+    device_class: voltage
+    state_class: measurement
+    accuracy_decimals: 2
   - platform: emontx
     tag_name: "E2"
     name: "Energy CT2"
