@@ -43,6 +43,7 @@ uart:
   rx_pin: GPIO16
   tx_pin: GPIO17
   baud_rate: 115200
+  rx_buffer_size: 2048
 
 emontx:
   id: myemontx
@@ -64,6 +65,27 @@ In `emontx` platform:
 - **on_json** (*Optional*): An automation that will be triggered whenever new JSON data is received from the EmonTx. Within this trigger, the `raw_json` variable (string type) contains the received JSON data as a string. A parsed JSON object is also available as the `json` variable (JsonObject type), which can be used to access and manipulate specific fields in the JSON data.
 - **on_data** (*Optional*): An automation that will be triggered for every serial line received from the EmonTx (both plain text and JSON). Within this trigger, the `data` variable (string type) contains the received line. This is useful for debugging, logging all serial output, or handling configuration responses from the EmonTx.
 
+## Actions
+
+### `emontx.send_command` Action
+
+Send a command string to the EmonTx device via UART. A newline character is appended automatically.
+
+```yaml
+button:
+  - platform: template
+    name: "Request EmonTx Version"
+    on_press:
+      - emontx.send_command:
+          id: myemontx
+          command: "v"
+```
+
+#### Configuration variables
+
+- **id** (*Required*, [ID](/guides/configuration-types#id)): The ID of the EmonTx hub.
+- **command** (*Required*, string, [templatable](/guides/automations#all-actions)): The command string to send.
+
 ## Quick Start
 
 Here is a minimal working configuration to get started with basic sensor readings from the EmonTx:
@@ -74,6 +96,7 @@ uart:
   rx_pin: GPIO16
   tx_pin: GPIO17
   baud_rate: 115200
+  rx_buffer_size: 2048
 
 emontx:
 
