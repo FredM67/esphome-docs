@@ -563,7 +563,7 @@ sensor:
           last_ms = now;
           if (dt_s <= 0.0f) return {};
           return delta / dt_s;  // pulses/s
-      - multiply: 3.6   # adjust to your meter — see table below
+      - multiply: 3600  # adjust to your meter — see table below
 ```
 
 The lambda outputs **pulses/s**. Adjust `multiply`, `unit_of_measurement`, `device_class`
@@ -571,25 +571,26 @@ and `accuracy_decimals` to match your meter type:
 
 | Meter type | Impulse constant | `multiply` | `unit_of_measurement` |
 |---|---|---|---|
-| Electricity | 1000 imp/kWh | `3.6` | `W` |
-| Electricity | 2000 imp/kWh | `1.8` | `W` |
-| Electricity | 10000 imp/kWh | `0.36` | `W` |
+| Electricity | 1000 imp/kWh | `3600` | `W` |
+| Electricity | 2000 imp/kWh | `1800` | `W` |
+| Electricity | 10000 imp/kWh | `360` | `W` |
 | Water | 1 pulse = 1 L | `60` | `L/min` |
-| Water | 1 pulse = 10 L | `6` | `L/min` |
+| Water | 1 pulse = 10 L | `600` | `L/min` |
 | Gas | 1 pulse = 0.01 m³ | `36` | `m³/h` |
 | Gas | 1 pulse = 0.1 m³ | `360` | `m³/h` |
 
 General formulas:
-- **Electricity (W)**: `multiply = 3600 / impulse_constant`
-- **Water (L/min)**: `multiply = 60 / liters_per_pulse`
+- **Electricity (W)**: `multiply = 3600000 / impulse_constant`
+- **Water (L/min)**: `multiply = 60 × liters_per_pulse`
 - **Gas (m³/h)**: `multiply = m3_per_pulse × 3600`
 
 > [!NOTE]
 > The impulse constant (imp/kWh for electricity, m³/pulse for gas) is printed on your meter face.
 
 > [!NOTE]
-> The EmonTx pulse counter is monotonically increasing and does not reset on reboot.
-> `state_class: total_increasing` is the correct state class for this sensor.
+> The raw EmonTx pulse counter is monotonically increasing and does not reset on reboot.
+> Use `state_class: total_increasing` when exposing it as a cumulative counter.
+> The derived instantaneous rate sensor shown above uses `state_class: measurement`.
 
 ## See Also
 
