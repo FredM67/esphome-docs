@@ -62,6 +62,11 @@ On the mk2Wifi module, the mainboard transmits on UART_TX which is
 connected to the ESP32-C6 **GPIO17** (U0RXD), and **GPIO16**
 (U0TXD) is connected to UART_RX.
 
+> [!NOTE]
+> GPIO16 and GPIO17 are the default UART0 pins on the ESP32-C6, so
+> this configuration uses the hardware UART without requiring any
+> pin remapping.
+
 ```yaml
 # mk2Wifi-C6 configuration
 uart:
