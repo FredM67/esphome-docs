@@ -4,7 +4,6 @@ title: "Mk2PVRouter Surplus Energy Diverter"
 ---
 
 import Figure from '@components/Figure.astro';
-import mk2pvrouterFullImg from './images/mk2pvrouter-full.jpg';
 import APIRef from '@components/APIRef.astro';
 
 The `mk2pvrouter` component allows you to retrieve telemetry data
@@ -16,10 +15,11 @@ This component can also be used to send data to a non-Home Assistant
 system via MQTT.
 
 <Figure
-  src={mk2pvrouterFullImg}
+  src="/images/mk2pvrouter.jpg"
   alt="Mk2PVRouter diverter"
   caption="Mk2PVRouter diverter."
   layout="constrained"
+  width={300}
 />
 
 ## Hardware
@@ -64,7 +64,6 @@ connected to the ESP32-C6 **GPIO17** (U0RXD), and **GPIO16**
 ```yaml
 # mk2Wifi-C6 configuration
 uart:
-  tx_pin: GPIO16
   rx_pin: GPIO17
   baud_rate: 9600
   parity: EVEN
@@ -134,6 +133,8 @@ sensor:
 
 - **tag** (**Required**, string): The tag to retrieve from the
   Telemetry.
+- **mk2pvrouter_id** (*Optional*, [ID](/guides/configuration-types#id)):
+  The ID of the `mk2pvrouter` hub to use, if you have multiple.
 - All other options from [Sensor](/components/sensor/).
 
 > [!NOTE]
@@ -153,6 +154,8 @@ binary_sensor:
 
 - **tag** (**Required**, string): The tag to retrieve from the
   Telemetry.
+- **mk2pvrouter_id** (*Optional*, [ID](/guides/configuration-types#id)):
+  The ID of the `mk2pvrouter` hub to use, if you have multiple.
 - All other options from
   [Binary Sensor](/components/binary_sensor/#config-binary_sensor).
 
@@ -169,6 +172,8 @@ text_sensor:
 
 - **tag** (**Required**, string): The tag to retrieve from the
   Telemetry.
+- **mk2pvrouter_id** (*Optional*, [ID](/guides/configuration-types#id)):
+  The ID of the `mk2pvrouter` hub to use, if you have multiple.
 - All other options from
   [Text Sensor](/components/text_sensor/#config-text_sensor).
 
@@ -199,7 +204,6 @@ ota:
   - platform: esphome
 
 uart:
-  tx_pin: GPIO16
   rx_pin: GPIO17
   baud_rate: 9600
   parity: EVEN
@@ -259,6 +263,13 @@ The GPIO mapping on the mk2Wifi-C6 module is:
 | D7 | GPIO4 |
 | D8 | GPIO3 |
 | D9 | GPIO1 |
+
+> [!NOTE]
+> GPIO4 and GPIO5 are strapping pins on the ESP32-C6. ESPHome logs a
+> strapping-pin warning at compile time when they are used as
+> outputs, which is expected here since the module's PCB dictates
+> this pin assignment. Add `ignore_strapping_warning: true` to the
+> pin config to silence it.
 
 Common control functions include:
 
@@ -393,9 +404,12 @@ sensor:
 > 15 minutes.
 
 If you configure MQTT, you need to define the
-[MQTT](/components/mqtt/) component. The component will publish all
-sensor data to topics following this structure:
-`<topic_prefix>/<sensor_name>`
+[MQTT](/components/mqtt/) component. Like any other ESPHome entity,
+each sensor is published to a topic following this structure:
+`<topic_prefix>/<component_type>/<object_id>/state`, where
+`<object_id>` is the sanitized (lowercase, underscored) version of
+the entity's `name`. Use `state_topic` on the entity if you need a
+different topic.
 
 ```yaml
 mqtt:
@@ -408,10 +422,12 @@ mqtt:
 mk2pvrouter:
 ```
 
-With this configuration, data will be published to topics such as:
+With this configuration, using the sensors named "Voltage Phase 1"
+and "Total Power" from the [Complete Example](#complete-example)
+above, data will be published to topics such as:
 
-- `mk2pvrouter/V1` for voltage on phase 1
-- `mk2pvrouter/P1` for power on phase 1
+- `mk2pvrouter/sensor/voltage_phase_1/state`
+- `mk2pvrouter/sensor/total_power/state`
 
 ## See Also
 
