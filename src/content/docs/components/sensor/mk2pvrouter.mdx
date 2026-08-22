@@ -392,8 +392,9 @@ sensor:
     id: diverted_power_meter
     name: "Diverted Power (meter)"
     unit_of_measurement: "W"
+    internal_filter: 50ms
     filters:
-      - multiply: 6.0  # 1000 pulses/kWh → W conversion
+      - multiply: 60  # 1000 pulses/kWh -> W conversion
   - platform: total_daily_energy
     name: "Diverted Energy Today"
     power_id: diverted_power_meter
@@ -437,7 +438,7 @@ above, data will be published to topics such as:
 
 ## See Also
 
-- [Mk2PVRouter documentation](https://fredm67.github.io/Mk2PVRouter/mk2wifi/presentation-mk2wifi/)
+- [Mk2PVRouter documentation](https://fredm67.github.io/Mk2PVRouter/)
 - [mk2Wifi-C6 expansion module](https://fredm67.github.io/Mk2PVRouter/mk2wifi/presentation-mk2wifi/)
 - [Mk2PVRouter FW single phase](https://github.com/FredM67/PVRouter-1-phase)
 - [Mk2PVRouter FW three phase](https://github.com/FredM67/PVRouter-3-phase)
