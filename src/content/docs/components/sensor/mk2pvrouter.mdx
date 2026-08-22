@@ -72,7 +72,6 @@ uart:
   stop_bits: 1
 
 mk2pvrouter:
-  update_interval: 5s
 ```
 
 ## Configuration Variables
@@ -82,9 +81,6 @@ mk2pvrouter:
 - **uart_id** (*Optional*, [ID](/guides/configuration-types#id)):
   Manually specify the ID of the UART Component if you want to use
   multiple UART buses.
-- **update_interval** (*Optional*,
-  [Time](/guides/configuration-types/#time)): The interval to check
-  the sensor. Defaults to `5s`.
 
 ## Available Tags
 
@@ -106,25 +102,37 @@ Common tags include:
 
 > [!NOTE]
 > Voltage and temperature values are sent multiplied by 100
-> (centivolts/centi-degrees). The component automatically converts
-> them to volts and °C.
+> (centivolts/centi-degrees). For `V`/`V1`/`V2`/`V3` and `T1`, `T2`,
+> ... tags, the component automatically applies a built-in
+> `multiply: 0.01` filter so the published value is already in volts
+> or °C.
+>
+> This built-in filter **stacks** on top of any `filters:` you add to
+> the sensor — it does not replace them. If you add your own filters
+> to one of these tags, they run *after* the built-in `multiply: 0.01`
+> conversion. For example, adding `multiply: 0.001` on a `V` tag
+> results in an effective conversion of `0.01 * 0.001`, i.e. the
+> value ends up in kilovolts, not volts. Take this into account when
+> writing filters for these tags — do not add your own `multiply:
+> 0.01` expecting to perform the base conversion, or the value will
+> be scaled twice.
 
 ## Sensors
 
 ```yaml
 sensor:
   - platform: mk2pvrouter
-    tag_name: "P"
+    tag: "P"
     name: "Power at grid"
   - platform: mk2pvrouter
-    tag_name: "V1"
+    tag: "V1"
     name: "Voltage Phase 1"
   - platform: mk2pvrouter
-    tag_name: "D1"
+    tag: "D1"
     name: "Diversion rate Load 1"
 ```
 
-- **tag_name** (**Required**, string): The tag to retrieve from the
+- **tag** (**Required**, string): The tag to retrieve from the
   Telemetry.
 - All other options from [Sensor](/components/sensor/).
 
@@ -139,11 +147,11 @@ Use binary sensors for relay states:
 ```yaml
 binary_sensor:
   - platform: mk2pvrouter
-    tag_name: "R1"
+    tag: "R1"
     name: "Relay 1"
 ```
 
-- **tag_name** (**Required**, string): The tag to retrieve from the
+- **tag** (**Required**, string): The tag to retrieve from the
   Telemetry.
 - All other options from
   [Binary Sensor](/components/binary_sensor/#config-binary_sensor).
@@ -155,11 +163,11 @@ Use text sensors if you need the raw string value:
 ```yaml
 text_sensor:
   - platform: mk2pvrouter
-    tag_name: "P"
+    tag: "P"
     name: "Power at grid (raw)"
 ```
 
-- **tag_name** (**Required**, string): The tag to retrieve from the
+- **tag** (**Required**, string): The tag to retrieve from the
   Telemetry.
 - All other options from
   [Text Sensor](/components/text_sensor/#config-text_sensor).
@@ -199,36 +207,35 @@ uart:
   stop_bits: 1
 
 mk2pvrouter:
-  update_interval: 5s
 
 sensor:
   - platform: mk2pvrouter
-    tag_name: "P"
+    tag: "P"
     name: "Total Power"
     id: total_power
   - platform: mk2pvrouter
-    tag_name: "P1"
+    tag: "P1"
     name: "Power Phase 1"
   - platform: mk2pvrouter
-    tag_name: "P2"
+    tag: "P2"
     name: "Power Phase 2"
   - platform: mk2pvrouter
-    tag_name: "P3"
+    tag: "P3"
     name: "Power Phase 3"
   - platform: mk2pvrouter
-    tag_name: "V1"
+    tag: "V1"
     name: "Voltage Phase 1"
     id: voltage_phase1
   - platform: mk2pvrouter
-    tag_name: "V2"
+    tag: "V2"
     name: "Voltage Phase 2"
   - platform: mk2pvrouter
-    tag_name: "V3"
+    tag: "V3"
     name: "Voltage Phase 3"
 
 binary_sensor:
   - platform: mk2pvrouter
-    tag_name: "R1"
+    tag: "R1"
     name: "Relay 1 State"
 ```
 
