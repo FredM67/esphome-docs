@@ -422,8 +422,8 @@ different topic.
 mqtt:
   broker: 192.168.1.10
   port: 1883
-  username: mqtt_user
-  password: mqtt_pass
+  username: !secret mqtt_username
+  password: !secret mqtt_password
   topic_prefix: "mk2pvrouter"
 
 mk2pvrouter:
