@@ -96,12 +96,12 @@ Common tags include:
 |-----|-------------|------|-------|
 | `P` | Total power at grid | W | Positive = importing, Negative = exporting |
 | `P1`, `P2`, `P3` | Power per phase | W | Three-phase systems only |
-| `V` | Voltage (single-phase) | cV | Value is in centivolts (divide by 100) |
-| `V1`, `V2`, `V3` | Voltage per phase | cV | Three-phase systems only, in centivolts |
+| `V` | Voltage (single-phase) | V | Sent in centivolts by the router; the component converts it automatically |
+| `V1`, `V2`, `V3` | Voltage per phase | V | Three-phase systems only; sent in centivolts and converted automatically |
 | `D` | Diverted power | W | Single-phase systems |
 | `D1`, `D2`, `D3` | Diversion rate per load | % | Three-phase systems |
 | `E` | Diverted energy | Wh | Single-phase systems |
-| `T1`, `T2`, ... | Temperature sensors | c°C | Value is in centi-degrees (divide by 100) |
+| `T1`, `T2`, ... | Temperature sensors | °C | Sent in centi-degrees by the router; the component converts it automatically |
 | `R1`, `R2`, ... | Relay states | 0/1 | 0 = OFF, 1 = ON |
 | `N` | No-diversion counter | - | Count of cycles without diversion |
 
