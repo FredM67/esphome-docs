@@ -147,42 +147,6 @@ sensor:
 > Sensor defaults (unit, device class, accuracy) are automatically
 > set based on the tag name. You can override them if needed.
 
-## Binary Sensor
-
-Use binary sensors for relay states:
-
-```yaml
-binary_sensor:
-  - platform: mk2pvrouter
-    tag: "R1"
-    name: "Relay 1"
-```
-
-- **tag** (**Required**, string): The tag to retrieve from the
-  Telemetry.
-- **mk2pvrouter_id** (*Optional*, [ID](/guides/configuration-types#id)):
-  The ID of the `mk2pvrouter` hub to use, if you have multiple.
-- All other options from
-  [Binary Sensor](/components/binary_sensor/#config-binary_sensor).
-
-## Text Sensor
-
-Use text sensors if you need the raw string value:
-
-```yaml
-text_sensor:
-  - platform: mk2pvrouter
-    tag: "P"
-    name: "Power at grid (raw)"
-```
-
-- **tag** (**Required**, string): The tag to retrieve from the
-  Telemetry.
-- **mk2pvrouter_id** (*Optional*, [ID](/guides/configuration-types#id)):
-  The ID of the `mk2pvrouter` hub to use, if you have multiple.
-- All other options from
-  [Text Sensor](/components/text_sensor/#config-text_sensor).
-
 ## Complete Example
 
 Here's a complete configuration for a three-phase system using the
@@ -242,11 +206,6 @@ sensor:
   - platform: mk2pvrouter
     tag: "V3"
     name: "Voltage Phase 3"
-
-binary_sensor:
-  - platform: mk2pvrouter
-    tag: "R1"
-    name: "Relay 1 State"
 ```
 
 ## Controlling the Mk2PVRouter
