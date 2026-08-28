@@ -98,6 +98,7 @@ Common tags include:
 |-----|-------------|------|-------|
 | `P` | Total power at grid | W | Positive = importing, Negative = exporting |
 | `P1`, `P2`, `P3` | Power per phase | W | Three-phase systems only |
+| `R` | Mean power for relay diversion | W | Single- and three-phase systems |
 | `V` | Voltage (single-phase) | V | Sent in centivolts; converted automatically |
 | `V1`, `V2`, `V3` | Voltage per phase | V | Three-phase systems only; converted automatically |
 | `D` | Diverted power | W | Single-phase systems |
@@ -145,6 +146,7 @@ them by specifying the corresponding option explicitly.
 | Tag | Unit | Device Class | State Class | Accuracy | Notes |
 |-----|------|--------------|--------------|----------|-------|
 | `P` | W | power | measurement | 0 | Total power at grid (on three-phase, `P` = `P1` + `P2` + `P3`) |
+| `R` | W | power | measurement | 0 | Mean power for relay diversion (single- and three-phase) |
 | `T1`, `T2`, ... | °C | temperature | measurement | 2 | Automatically converted from centi-degrees |
 | `R1`, `R2`, ... | — | — | none | — | Relay state, 0/1 |
 | Any other tag (e.g. `N`) | — | — | measurement | 0 | Fallback defaults |
@@ -156,7 +158,6 @@ them by specifying the corresponding option explicitly.
 | `V` | V | voltage | measurement | 2 | Automatically converted from centivolts |
 | `D` | W | power | measurement | 0 | Diverted power |
 | `E` | Wh | energy | total_increasing | 0 | Diverted energy (daily reset counter) |
-| `R` | W | power | measurement | 0 | Mean power for relay diversion |
 
 **Three-phase tags** (letter + phase/load number):
 
@@ -168,9 +169,9 @@ them by specifying the corresponding option explicitly.
 
 > [!NOTE]
 > Exact single-letter tags (`P`, `D`, `V`, `E`, `R`) take priority
-> over the letter+number pattern match, so they keep their
-> single-phase defaults even though e.g. `P` also matches the `P`
-> pattern used for `P1`, `P2`, `P3`.
+> over the letter+number pattern match, so `P` and `R` keep their
+> defaults even though they also match the pattern used for
+> `P1`/`P2`/`P3` and `R1`/`R2`/....
 
 ## Complete Example
 
