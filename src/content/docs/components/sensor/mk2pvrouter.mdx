@@ -110,19 +110,9 @@ Common tags include:
 > [!NOTE]
 > Voltage and temperature values are sent multiplied by 100
 > (centivolts/centi-degrees). For `V`/`V1`/`V2`/`V3` and `T1`, `T2`,
-> ... tags, the component automatically applies a built-in
-> `multiply: 0.01` filter so the published value is already in volts
-> or °C.
->
-> This built-in filter **stacks** on top of any `filters:` you add to
-> the sensor — it does not replace them. If you add your own filters
-> to one of these tags, they run *after* the built-in `multiply: 0.01`
-> conversion. For example, adding `multiply: 0.001` on a `V` tag
-> results in an effective conversion of `0.01 * 0.001`, i.e. the
-> value ends up in kilovolts, not volts. Take this into account when
-> writing filters for these tags — do not add your own `multiply:
-> 0.01` expecting to perform the base conversion, or the value will
-> be scaled twice.
+> ... tags, the component automatically converts this to volts/°C
+> before publishing the sensor state, so any `filters:` you add run
+> on the already-converted value, just like on any other sensor.
 
 ## Sensors
 
@@ -155,7 +145,7 @@ them by specifying the corresponding option explicitly.
 | Tag | Unit | Device Class | State Class | Accuracy | Notes |
 |-----|------|--------------|--------------|----------|-------|
 | `P` | W | power | measurement | 0 | Total power at grid (on three-phase, `P` = `P1` + `P2` + `P3`) |
-| `T1`, `T2`, ... | °C | temperature | measurement | 2 | Built-in `multiply: 0.01` filter |
+| `T1`, `T2`, ... | °C | temperature | measurement | 2 | Automatically converted from centi-degrees |
 | `R1`, `R2`, ... | — | — | none | — | Relay state, 0/1 |
 | Any other tag (e.g. `N`) | — | — | measurement | 0 | Fallback defaults |
 
@@ -163,7 +153,7 @@ them by specifying the corresponding option explicitly.
 
 | Tag | Unit | Device Class | State Class | Accuracy | Notes |
 |-----|------|--------------|--------------|----------|-------|
-| `V` | V | voltage | measurement | 2 | Built-in `multiply: 0.01` filter |
+| `V` | V | voltage | measurement | 2 | Automatically converted from centivolts |
 | `D` | W | power | measurement | 0 | Diverted power |
 | `E` | Wh | energy | total_increasing | 0 | Diverted energy (daily reset counter) |
 | `R` | W | power | measurement | 0 | Mean power for relay diversion |
@@ -173,7 +163,7 @@ them by specifying the corresponding option explicitly.
 | Tag | Unit | Device Class | State Class | Accuracy | Notes |
 |-----|------|--------------|--------------|----------|-------|
 | `P1`, `P2`, `P3` | W | power | measurement | 0 | Power per phase |
-| `V1`, `V2`, `V3` | V | voltage | measurement | 2 | Built-in `multiply: 0.01` filter |
+| `V1`, `V2`, `V3` | V | voltage | measurement | 2 | Automatically converted from centivolts |
 | `D1`, `D2`, ... | % | — | measurement | 0 | Diversion rate per load |
 
 > [!NOTE]
