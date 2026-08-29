@@ -133,8 +133,8 @@ sensor:
 - **tag** (**Required**, string): The tag to retrieve from the
   Telemetry.
 - **mk2pvrouter_id** (*Optional*, [ID](/guides/configuration-types#id)):
-  The ID of the `mk2pvrouter` hub to use. Only needed if you gave the
-  hub a custom `id`.
+  The ID of the `mk2pvrouter` hub to use. Not normally needed, since
+  there is only one hub.
 - All other options from [Sensor](/components/sensor/).
 
 Sensor defaults (unit, device class, state class, accuracy) are
@@ -148,8 +148,12 @@ them by specifying the corresponding option explicitly.
 | `P` | W | power | measurement | 0 | Total power at grid (on three-phase, `P` = `P1` + `P2` + `P3`) |
 | `R` | W | power | measurement | 0 | Mean power for relay diversion (single- and three-phase) |
 | `T1`, `T2`, ... | °C | temperature | measurement | 2 | Automatically converted from centi-degrees |
-| `R1`, `R2`, ... | — | — | none | — | Relay state, 0/1 |
+| `R1`, `R2`, ... | — | — | none | 0 | Relay state, 0/1 |
 | Any other tag (e.g. `N`) | — | — | measurement | 0 | Fallback defaults |
+
+> [!NOTE]
+> A `—` cell means the component sets no default for that option;
+> ESPHome's normal sensor defaults apply instead.
 
 **Single-phase tags** (exact match):
 
@@ -168,10 +172,9 @@ them by specifying the corresponding option explicitly.
 | `D1`, `D2`, ... | % | — | measurement | 0 | Diversion rate per load |
 
 > [!NOTE]
-> Exact single-letter tags (`P`, `D`, `V`, `E`, `R`) take priority
-> over the letter+number pattern match, so `P` and `R` keep their
-> defaults even though they also match the pattern used for
-> `P1`/`P2`/`P3` and `R1`/`R2`/....
+> Tags are resolved by exact match first, then by their leading
+> letter. So `P` and `R` keep their own defaults rather than picking
+> up the ones used for `P1`/`P2`/`P3` and `R1`/`R2`/....
 
 ## Complete Example
 
