@@ -170,8 +170,9 @@ them by specifying the corresponding option explicitly.
 > [!NOTE]
 > In the tables above, a `—` cell means the component sets no
 > default for that option, so ESPHome's normal sensor defaults apply
-> instead; `none` means the component explicitly sets that option to
-> none (e.g. `state_class: none` for relay states).
+> instead; `none` means the component explicitly clears the state
+> class for that tag (relay states), which is what `""` does when
+> set from YAML.
 
 > [!NOTE]
 > Tags are resolved by exact match first, then by their leading
