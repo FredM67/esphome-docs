@@ -151,7 +151,7 @@ them by specifying the corresponding option explicitly.
 | `R1`, `R2`, ... | — | — | none | 0 | Relay state, 0/1 |
 | Any other tag (e.g. `N`) | — | — | measurement | 0 | Fallback defaults |
 
-**Single-phase tags** (exact match):
+**Single-phase tags** (bare letter):
 
 | Tag | Unit | Device Class | State Class | Accuracy | Notes |
 |-----|------|--------------|--------------|----------|-------|
@@ -175,11 +175,12 @@ them by specifying the corresponding option explicitly.
 > set from YAML.
 
 > [!NOTE]
-> Tags are resolved by exact match first, then by their leading
-> letter. So `D` and `R` keep their own defaults rather than picking
-> up the ones used for `D1`/`D2`/... and `R1`/`R2`/... — for example,
-> a bare `D` reports diverted power in watts, while `D1`/`D2`/...
-> report a diversion rate percentage with no device class.
+> A tag's defaults depend on whether the letter is bare or followed
+> by a number, so `D` and `R` do not share defaults with
+> `D1`/`D2`/... and `R1`/`R2`/...: a bare `D` is diverted power in
+> watts, while `D1`/`D2`/... are diversion rates in percent with no
+> device class. A bare `T` or an indexed `E` (such as `E1`) is not a
+> Mk2PVRouter output and only gets the fallback defaults.
 
 ## Complete Example
 
