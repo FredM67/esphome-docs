@@ -204,7 +204,8 @@ binary_sensor:
 ## Text Sensors
 
 Any tag can also be exposed as a text sensor, which publishes the raw
-value exactly as received, without numeric parsing or scaling.
+value exactly as received, without numeric parsing or scaling. Values
+are limited to 7 characters; longer values are dropped by the hub.
 
 ```yaml
 text_sensor:
